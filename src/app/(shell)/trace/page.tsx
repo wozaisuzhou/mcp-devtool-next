@@ -4,7 +4,9 @@ import { useStore } from '@/store'
 import type { TraceEvent } from '@/lib/types'
 
 export default function TracePage() {
-  const { traces, clearTraces } = useStore()
+  const { getActiveTab, clearTraces } = useStore()
+  const activeTab = getActiveTab()
+  const traces = activeTab?.traces ?? []
   const [selected, setSelected] = useState<TraceEvent | null>(null)
   const [filter, setFilter] = useState<'all' | 'success' | 'error'>('all')
   const [search, setSearch] = useState('')

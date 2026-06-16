@@ -5,7 +5,11 @@ import type { TraceEvent } from '@/lib/types'
 
 export default function ChatPage() {
   const { messages, addMessage, claudeApiKey, setClaudeApiKey,
-          tools, serverInfo, addTrace, connected } = useStore()
+          addTrace, getActiveTab } = useStore()
+  const activeTab = getActiveTab()
+  const tools = activeTab?.tools ?? []
+  const serverInfo = activeTab?.serverInfo ?? null
+  const connected = activeTab?.connected ?? false
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [keyInput, setKeyInput] = useState(claudeApiKey)

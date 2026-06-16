@@ -5,9 +5,14 @@ import type { MCPTool, MCPResource } from '@/lib/types'
 import type { TraceEvent } from '@/lib/types'
 
 export function DetailPane() {
-  const { selectedItem, addTrace, config, serverInfo } = useStore()
+  const { getActiveTab, addTrace } = useStore()
+  const activeTab = getActiveTab()
   const [input, setInput] = useState('{}')
   const [response, setResponse] = useState<{ status: 'idle' | 'loading' | 'success' | 'error'; data?: unknown; error?: string; durationMs?: number }>({ status: 'idle' })
+
+  if (!activeTab) return <div className="flex-1" />
+
+  const selectedItem = activeTab.selectedItem
 
   // Reset input when item changes
   const item = selectedItem?.item
@@ -46,7 +51,7 @@ export function DetailPane() {
         status: res.ok ? 'success' : 'error',
         durationMs: data.durationMs ?? 0,
         timestamp: new Date().toISOString(),
-        serverId: serverInfo?.name ?? 'unknown',
+        serverId: activeTab.serverInfo?.name ?? 'unknown',
         source: 'inspector',
       }
       addTrace(trace)
@@ -99,12 +104,12 @@ export function DetailPane() {
         <div className="flex-1 flex flex-col gap-4 overflow-y-auto">
           <div>
             <FieldLabel>Input schema</FieldLabel>
-            <CodeBlock>{JSON.stringify(schema ?? {}, null, 2)}</CodeBlock>
+            <SchemaBlock schema={schema} />
           </div>
           <div>
             <FieldLabel>Server</FieldLabel>
             <CodeBlock className="text-[10px]">
-              {JSON.stringify({ url: config.url, transport: config.transport, ...serverInfo }, null, 2)}
+              {JSON.stringify({ url: activeTab.config.url, transport: activeTab.config.transport, ...activeTab.serverInfo }, null, 2)}
             </CodeBlock>
           </div>
         </div>
@@ -191,5 +196,51 @@ function TypeBadge({ type }: { type: string }) {
     <span className={`text-[10px] font-bold px-2 py-1 rounded ${styles[type] ?? ''}`}>
       {type.toUpperCase()}
     </span>
+  )
+}
+
+function SchemaBlock({ schema }: { schema?: any }) {
+  const required = schema?.required ?? []
+  const properties = schema?.properties ?? {}
+
+  if (!schema || Object.keys(properties).length === 0) {
+    return <CodeBlock>{JSON.stringify(schema ?? {}, null, 2)}</CodeBlock>
+  }
+
+  return (
+    <div className="bg-[#1a1a1e] border border-[#2a2a32] rounded-lg p-3 font-mono text-[11px] overflow-x-auto">
+      <div className="text-[#9090a8]">
+        <div>{'{'}</div>
+        <div className="ml-4">
+          <div><span className="text-[#9090a8]">"properties":</span> {'{'}</div>
+          {Object.entries(properties).map(([key, value]: [string, any], idx) => {
+            const isRequired = required.includes(key)
+            return (
+              <div key={key} className="ml-4">
+                <span className={isRequired ? 'text-[#f0a840] font-bold' : 'text-[#9090a8]'}>
+                  "{key}"
+                </span>
+                <span className="text-[#9090a8]">: {value?.type || 'unknown'}</span>
+                {idx < Object.keys(properties).length - 1 && <span className="text-[#9090a8]">,</span>}
+              </div>
+            )
+          })}
+          <div>{'},'}</div>
+        </div>
+        {required.length > 0 && (
+          <div className="ml-4">
+            <div><span className="text-[#9090a8]">"required":</span> {'['}</div>
+            {required.map((field, idx) => (
+              <div key={field} className="ml-4">
+                <span className="text-[#f0a840]">"{field}"</span>
+                {idx < required.length - 1 && <span className="text-[#9090a8]">,</span>}
+              </div>
+            ))}
+            <div><span className="text-[#9090a8]">]</span></div>
+          </div>
+        )}
+        <div>{'}'}</div>
+      </div>
+    </div>
   )
 }

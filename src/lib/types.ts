@@ -49,6 +49,36 @@ export interface ConnectionConfig {
   authToken?: string
 }
 
+export interface UserActivity {
+  id: string
+  userId: string
+  timestamp: string
+  activityType: 'tool_call' | 'resource_read' | 'connection' | 'error' | 'chat'
+  serverId: string
+  toolName?: string
+  input?: Record<string, unknown>
+  output?: unknown
+  error?: string
+  status?: 'success' | 'error' | 'timeout'
+  durationMs?: number
+  sessionId?: string
+  metadata?: {
+    ip?: string
+    userAgent?: string
+    userId?: string
+  }
+}
+
+export interface ActivityFilter {
+  userId?: string
+  activityType?: string
+  serverId?: string
+  sessionId?: string
+  startDate?: string
+  endDate?: string
+  limit?: number
+}
+
 export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string | unknown[]

@@ -1,8 +1,10 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 import { useStore } from '@/store'
 import { ConnectionBar } from '@/components/ConnectionBar'
+import { SaveSessionModal } from '@/components/SaveSessionModal'
 
 const TABS = [
   { href: '/inspector', label: 'Inspector', icon: '⬡' },
@@ -13,7 +15,13 @@ const TABS = [
 
 export default function ShellLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const { connected, connecting, serverInfo, traces } = useStore()
+  const [showSaveModal, setShowSaveModal] = useState(false)
+  const { getActiveTab } = useStore()
+  const activeTab = getActiveTab()
+  const connected = activeTab?.connected ?? false
+  const connecting = activeTab?.connecting ?? false
+  const serverInfo = activeTab?.serverInfo ?? null
+  const traces = activeTab?.traces ?? []
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -53,25 +61,41 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        {/* Status */}
-        <div className="flex items-center gap-2 text-[12px]">
-          <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-            connecting ? 'bg-[#f0a840] animate-pulse' :
-            connected  ? 'dot-connected' :
-                         'bg-[#5a5a70]'
-          }`} />
-          <span className="text-[#9090a8]">
-            {connecting ? 'Connecting…' :
-             connected  ? serverInfo?.name ?? 'Connected' :
-                          'Not connected'}
-          </span>
-          {connected && serverInfo && (
-            <span className="text-[#5a5a70] font-mono text-[10px]">
-              v{serverInfo.version}
+        {/* Status + Save Session */}
+        <div className="flex items-center gap-3 text-[12px]">
+          <div className="flex items-center gap-2">
+            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+              connecting ? 'bg-[#f0a840] animate-pulse' :
+              connected  ? 'dot-connected' :
+                           'bg-[#5a5a70]'
+            }`} />
+            <span className="text-[#9090a8]">
+              {connecting ? 'Connecting…' :
+               connected  ? serverInfo?.name ?? 'Connected' :
+                            'Not connected'}
             </span>
-          )}
+            {connected && serverInfo && (
+              <span className="text-[#5a5a70] font-mono text-[10px]">
+                v{serverInfo.version}
+              </span>
+            )}
+          </div>
+
+          <button
+            onClick={() => setShowSaveModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium
+                       bg-[#1e1c3a] text-[#7c6ff7] border border-[#2e2a5a]
+                       hover:bg-[#2a2650] hover:border-[#5a54c4] transition-colors"
+          >
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <path d="M6 1v7M3 5l3 3 3-3M1 9v1a1 1 0 001 1h8a1 1 0 001-1V9"/>
+            </svg>
+            Save session
+          </button>
         </div>
       </header>
+
+      {showSaveModal && <SaveSessionModal onClose={() => setShowSaveModal(false)} />}
 
       {/* ── Connection bar ── */}
       <ConnectionBar />

@@ -14,7 +14,9 @@ interface OAuthState {
 }
 
 export default function OAuthPage() {
-  const { config, setConfig } = useStore()
+  const { getActiveTab, setConfig } = useStore()
+  const activeTab = getActiveTab()
+  const config = activeTab?.config ?? { url: '', transport: 'auto', authToken: '' }
   const [oauthState, setOAuthState] = useState<OAuthState>({})
   const [stepStatus, setStepStatus] = useState<Record<Step, StepStatus>>({
     1: 'active', 2: 'idle', 3: 'idle', 4: 'idle', 5: 'idle',

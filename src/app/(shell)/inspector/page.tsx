@@ -4,7 +4,9 @@ import { Sidebar } from '@/components/inspector/Sidebar'
 import { DetailPane } from '@/components/inspector/DetailPane'
 
 export default function InspectorPage() {
-  const { connected } = useStore()
+  const { getActiveTab } = useStore()
+  const activeTab = getActiveTab()
+  const connected = activeTab?.connected ?? false
 
   return (
     <div className="flex h-full">

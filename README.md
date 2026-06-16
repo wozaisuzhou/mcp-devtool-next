@@ -102,6 +102,25 @@ This is a single-user application with a shared MCP connection. All users connec
 
 ## Deployment
 
+### Electron Desktop App
+
+You can also build and distribute MCP DevTool as a native desktop application using Electron:
+
+```bash
+# Development mode with Electron
+npm run electron-dev
+
+# Build Electron app for current platform
+npm run electron-build
+
+# Platform-specific builds
+npm run electron-build:mac   # Mac DMG and ZIP
+npm run electron-build:win   # Windows installer and portable
+npm run electron-build:linux # Linux AppImage and DEB
+```
+
+See [Electron Setup Guide](docs/ELECTRON_SETUP.md) for detailed instructions.
+
 ### Development with HTTPS
 
 ```bash
