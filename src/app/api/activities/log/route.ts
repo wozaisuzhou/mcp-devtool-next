@@ -1,133 +1,92 @@
-// src/app/api/activities/log/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { Pool } from 'pg'
-import type { UserActivity } from '@/lib/types'
-
-// Initialize PostgreSQL connection pool
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-})
+import db from '@/lib/db'
+import type { UserActivity, ActivityFilter } from '@/lib/types'
 
 export async function POST(req: NextRequest) {
   try {
     const activity: UserActivity = await req.json()
 
-    const query = `
-      INSERT INTO activities (
-        user_id, timestamp, activity_type, server_id, tool_name,
-        input, output, error, status, duration_ms, session_id, metadata
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      RETURNING id
-    `
+    const { data, error } = await db
+      .from('activities')
+      .insert({
+        user_id:       activity.userId,
+        timestamp:     activity.timestamp,
+        activity_type: activity.activityType,
+        server_id:     activity.serverId,
+        tool_name:     activity.toolName || null,
+        input:         activity.input || null,
+        output:        activity.output || null,
+        error:         activity.error || null,
+        status:        activity.status || null,
+        duration_ms:   activity.durationMs || null,
+        session_id:    activity.sessionId || null,
+        metadata:      activity.metadata || null,
+      })
+      .select('id')
+      .single()
 
-    const result = await pool.query(query, [
-      activity.userId,
-      activity.timestamp,
-      activity.activityType,
-      activity.serverId,
-      activity.toolName || null,
-      activity.input ? JSON.stringify(activity.input) : null,
-      activity.output ? JSON.stringify(activity.output) : null,
-      activity.error || null,
-      activity.status || null,
-      activity.durationMs || null,
-      activity.sessionId || null,
-      activity.metadata ? JSON.stringify(activity.metadata) : null,
-    ])
+    if (error) throw error
 
-    return NextResponse.json({
-      success: true,
-      id: result.rows[0].id,
-    })
+    return NextResponse.json({ success: true, id: data.id })
   } catch (err) {
     console.error('Failed to log activity:', err)
-    return NextResponse.json(
-      { error: 'Failed to log activity' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to log activity' }, { status: 500 })
   }
 }
 
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams
-    const userId = searchParams.get('userId')
+    const userId       = searchParams.get('userId')
     const activityType = searchParams.get('activityType')
-    const limit = searchParams.get('limit') || '100'
+    const limit        = Math.min(parseInt(searchParams.get('limit') || '100'), 500)
 
-    let query = 'SELECT * FROM activities WHERE 1=1'
-    const params: any[] = []
-    let paramCount = 1
+    let query = db
+      .from('activities')
+      .select('*')
+      .order('timestamp', { ascending: false })
+      .limit(limit)
 
-    if (userId) {
-      query += ` AND user_id = $${paramCount++}`
-      params.push(userId)
-    }
+    if (userId)       query = query.eq('user_id', userId)
+    if (activityType) query = query.eq('activity_type', activityType)
 
-    if (activityType) {
-      query += ` AND activity_type = $${paramCount++}`
-      params.push(activityType)
-    }
+    const { data, error } = await query
+    if (error) throw error
 
-    query += ` ORDER BY timestamp DESC LIMIT $${paramCount}`
-    params.push(parseInt(limit))
-
-    const result = await pool.query(query, params)
-
-    const activities = result.rows.map((row) => ({
-      id: row.id,
-      userId: row.user_id,
-      timestamp: row.timestamp,
+    const activities = (data ?? []).map((row) => ({
+      id:           row.id,
+      userId:       row.user_id,
+      timestamp:    row.timestamp,
       activityType: row.activity_type,
-      serverId: row.server_id,
-      toolName: row.tool_name,
-      input: row.input,
-      output: row.output,
-      error: row.error,
-      status: row.status,
-      durationMs: row.duration_ms,
-      sessionId: row.session_id,
-      metadata: row.metadata,
+      serverId:     row.server_id,
+      toolName:     row.tool_name,
+      input:        row.input,
+      output:       row.output,
+      error:        row.error,
+      status:       row.status,
+      durationMs:   row.duration_ms,
+      sessionId:    row.session_id,
+      metadata:     row.metadata,
     }))
 
     return NextResponse.json({ activities })
   } catch (err) {
     console.error('Failed to fetch activities:', err)
-    return NextResponse.json(
-      { error: 'Failed to fetch activities' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch activities' }, { status: 500 })
   }
 }
 
 export async function DELETE(req: NextRequest) {
   try {
-    const searchParams = req.nextUrl.searchParams
-    const id = searchParams.get('id')
+    const id = req.nextUrl.searchParams.get('id')
+    if (!id) return NextResponse.json({ error: 'Activity ID is required' }, { status: 400 })
 
-    if (!id) {
-      return NextResponse.json(
-        { error: 'Activity ID is required' },
-        { status: 400 }
-      )
-    }
-
-    const query = 'DELETE FROM activities WHERE id = $1 RETURNING id'
-    const result = await pool.query(query, [id])
-
-    if (result.rows.length === 0) {
-      return NextResponse.json(
-        { error: 'Activity not found' },
-        { status: 404 }
-      )
-    }
+    const { error } = await db.from('activities').delete().eq('id', id)
+    if (error) throw error
 
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('Failed to delete activity:', err)
-    return NextResponse.json(
-      { error: 'Failed to delete activity' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to delete activity' }, { status: 500 })
   }
 }

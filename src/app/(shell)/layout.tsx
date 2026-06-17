@@ -10,6 +10,7 @@ const TABS = [
   { href: '/inspector', label: 'Inspector', icon: '⬡' },
   { href: '/chat',      label: 'Chat',      icon: '◈' },
   { href: '/trace',     label: 'Trace',     icon: '◎' },
+  { href: '/sessions',  label: 'Sessions',  icon: '⇄' },
   { href: '/oauth',     label: 'OAuth',     icon: '◆' },
 ]
 
@@ -95,7 +96,17 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
         </div>
       </header>
 
-      {showSaveModal && <SaveSessionModal onClose={() => setShowSaveModal(false)} />}
+      {showSaveModal && (
+        <SaveSessionModal
+          config={activeTab?.config ?? { url: '', transport: 'auto' }}
+          serverInfo={serverInfo}
+          tools={activeTab?.tools ?? []}
+          resources={activeTab?.resources ?? []}
+          prompts={activeTab?.prompts ?? []}
+          traces={activeTab?.traces ?? []}
+          onClose={() => setShowSaveModal(false)}
+        />
+      )}
 
       {/* ── Connection bar ── */}
       <ConnectionBar />
