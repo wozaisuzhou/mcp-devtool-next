@@ -89,10 +89,10 @@ export function DetailPane() {
     <div className="flex-1 flex flex-col overflow-hidden">
 
       {/* Header */}
-      <div className="flex items-start gap-3 px-5 py-4 border-b border-[#2a2a32]">
+      <div className="flex items-start gap-3 px-5 py-4 border-b border-[var(--c-border)]">
         <div className="flex-1 min-w-0">
-          <h2 className="font-mono text-[15px] font-semibold text-[#e8e8f0] truncate">{itemName}</h2>
-          {description && <p className="text-[12px] text-[#9090a8] mt-0.5">{description}</p>}
+          <h2 className="font-mono text-[17px] font-semibold text-[var(--c-text)] truncate">{itemName}</h2>
+          {description && <p className="text-[14px] text-[var(--c-text-2)] mt-0.5">{description}</p>}
         </div>
         <TypeBadge type={selectedItem.type} />
       </div>
@@ -108,7 +108,7 @@ export function DetailPane() {
           </div>
           <div>
             <FieldLabel>Server</FieldLabel>
-            <CodeBlock className="text-[10px]">
+            <CodeBlock className="text-[12px]">
               {JSON.stringify({ url: activeTab.config.url, transport: activeTab.config.transport, ...activeTab.serverInfo }, null, 2)}
             </CodeBlock>
           </div>
@@ -119,7 +119,7 @@ export function DetailPane() {
           <div className="flex items-center justify-between">
             <FieldLabel>Input (JSON)</FieldLabel>
             <button onClick={formatInput}
-              className="text-[10px] px-2 py-1 rounded bg-[#1a1a1e] border border-[#2a2a32] text-[#9090a8] hover:text-[#e8e8f0] transition-colors">
+              className="text-[12px] px-2 py-1 rounded bg-[var(--c-bg-2)] border border-[var(--c-border)] text-[var(--c-text-2)] hover:text-[var(--c-text)] transition-colors">
               Format
             </button>
           </div>
@@ -127,22 +127,22 @@ export function DetailPane() {
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="bg-[#1a1a1e] border border-[#2a2a32] rounded-lg p-3 font-mono text-[12px]
-                       text-[#e8e8f0] outline-none resize-none min-h-[120px] focus:border-[#5a54c4] transition-colors"
+            className="bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-lg p-3 font-mono text-[14px]
+                       text-[var(--c-text)] outline-none resize-none min-h-[120px] focus:border-[var(--c-purple-2)] transition-colors"
           />
 
           <div className="flex gap-2">
             <button onClick={run}
               disabled={response.status === 'loading'}
-              className="flex-1 py-2 rounded-lg bg-[#5a54c4] text-white text-[12px] font-semibold
-                         hover:bg-[#7c6ff7] disabled:opacity-40 transition-colors flex items-center justify-center gap-2">
+              className="flex-1 py-2 rounded-lg bg-[var(--c-purple-2)] text-white text-[14px] font-semibold
+                         hover:bg-[var(--c-purple)] disabled:opacity-40 transition-colors flex items-center justify-center gap-2">
               {response.status === 'loading'
                 ? <><span className="spinner" /> Running…</>
                 : '▶ Run'}
             </button>
             <button onClick={() => setResponse({ status: 'idle' })}
-              className="px-3 py-2 rounded-lg bg-[#1a1a1e] border border-[#2a2a32] text-[12px]
-                         text-[#9090a8] hover:text-[#e8e8f0] transition-colors">
+              className="px-3 py-2 rounded-lg bg-[var(--c-bg-2)] border border-[var(--c-border)] text-[14px]
+                         text-[var(--c-text-2)] hover:text-[var(--c-text)] transition-colors">
               Clear
             </button>
           </div>
@@ -151,14 +151,14 @@ export function DetailPane() {
             <div className="flex items-center gap-2 mb-1.5">
               <FieldLabel>Response</FieldLabel>
               {response.durationMs !== undefined && (
-                <span className="text-[10px] text-[#5a5a70] font-mono">{response.durationMs}ms</span>
+                <span className="text-[12px] text-[var(--c-text-3)] font-mono">{response.durationMs}ms</span>
               )}
             </div>
-            <div className={`rounded-lg p-3 font-mono text-[11px] min-h-[120px] whitespace-pre-wrap break-all leading-relaxed
-              ${response.status === 'success' ? 'bg-[#0d2a1e] border border-[#1a3a28] text-[#3dd68c]'
-              : response.status === 'error'   ? 'bg-[#2a1010] border border-[#3a1a1a] text-[#f06a6a]'
-              : response.status === 'loading' ? 'bg-[#1a1a1e] border border-[#2a2a32] text-[#5a5a70]'
-              :                                 'bg-[#1a1a1e] border border-[#2a2a32] text-[#5a5a70]'}`}>
+            <div className={`rounded-lg p-3 font-mono text-[13px] min-h-[120px] whitespace-pre-wrap break-all leading-relaxed
+              ${response.status === 'success' ? 'bg-[var(--c-green-bg)] border border-[var(--c-green-bg-2)] text-[var(--c-green)]'
+              : response.status === 'error'   ? 'bg-[var(--c-red-bg)] border border-[var(--c-red-bg-2)] text-[var(--c-red)]'
+              : response.status === 'loading' ? 'bg-[var(--c-bg-2)] border border-[var(--c-border)] text-[var(--c-text-3)]'
+              :                                 'bg-[var(--c-bg-2)] border border-[var(--c-border)] text-[var(--c-text-3)]'}`}>
               {response.status === 'idle'    ? 'Run a tool to see the response.' :
                response.status === 'loading' ? 'Waiting for response…' :
                response.status === 'success' ? JSON.stringify(response.data, null, 2) :
@@ -173,14 +173,14 @@ export function DetailPane() {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10px] font-bold uppercase tracking-widest text-[#5a5a70] mb-1.5">{children}</p>
+    <p className="text-[12px] font-bold uppercase tracking-widest text-[var(--c-text-3)] mb-1.5">{children}</p>
   )
 }
 
 function CodeBlock({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <pre className={`bg-[#1a1a1e] border border-[#2a2a32] rounded-lg p-3 font-mono text-[11px]
-                    text-[#9090a8] overflow-x-auto leading-relaxed ${className}`}>
+    <pre className={`bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-lg p-3 font-mono text-[13px]
+                    text-[var(--c-text-2)] overflow-x-auto leading-relaxed ${className}`}>
       {children}
     </pre>
   )
@@ -188,12 +188,12 @@ function CodeBlock({ children, className = '' }: { children: React.ReactNode; cl
 
 function TypeBadge({ type }: { type: string }) {
   const styles: Record<string, string> = {
-    tool: 'bg-[#1e1c3a] text-[#7c6ff7]',
-    resource: 'bg-[#0e1e30] text-[#60a8f0]',
-    prompt: 'bg-[#2a1e08] text-[#f0a840]',
+    tool: 'bg-[var(--c-purple-bg)] text-[var(--c-purple)]',
+    resource: 'bg-[var(--c-blue-bg)] text-[var(--c-blue)]',
+    prompt: 'bg-[var(--c-amber-bg)] text-[var(--c-amber)]',
   }
   return (
-    <span className={`text-[10px] font-bold px-2 py-1 rounded ${styles[type] ?? ''}`}>
+    <span className={`text-[12px] font-bold px-2 py-1 rounded ${styles[type] ?? ''}`}>
       {type.toUpperCase()}
     </span>
   )
@@ -208,20 +208,20 @@ function SchemaBlock({ schema }: { schema?: any }) {
   }
 
   return (
-    <div className="bg-[#1a1a1e] border border-[#2a2a32] rounded-lg p-3 font-mono text-[11px] overflow-x-auto">
-      <div className="text-[#9090a8]">
+    <div className="bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-lg p-3 font-mono text-[13px] overflow-x-auto">
+      <div className="text-[var(--c-text-2)]">
         <div>{'{'}</div>
         <div className="ml-4">
-          <div><span className="text-[#9090a8]">"properties":</span> {'{'}</div>
+          <div><span className="text-[var(--c-text-2)]">"properties":</span> {'{'}</div>
           {Object.entries(properties).map(([key, value]: [string, any], idx) => {
             const isRequired = required.includes(key)
             return (
               <div key={key} className="ml-4">
-                <span className={isRequired ? 'text-[#f0a840] font-bold' : 'text-[#9090a8]'}>
+                <span className={isRequired ? 'text-[var(--c-amber)] font-bold' : 'text-[var(--c-text-2)]'}>
                   "{key}"
                 </span>
-                <span className="text-[#9090a8]">: {value?.type || 'unknown'}</span>
-                {idx < Object.keys(properties).length - 1 && <span className="text-[#9090a8]">,</span>}
+                <span className="text-[var(--c-text-2)]">: {value?.type || 'unknown'}</span>
+                {idx < Object.keys(properties).length - 1 && <span className="text-[var(--c-text-2)]">,</span>}
               </div>
             )
           })}
@@ -229,14 +229,14 @@ function SchemaBlock({ schema }: { schema?: any }) {
         </div>
         {required.length > 0 && (
           <div className="ml-4">
-            <div><span className="text-[#9090a8]">"required":</span> {'['}</div>
+            <div><span className="text-[var(--c-text-2)]">"required":</span> {'['}</div>
             {required.map((field, idx) => (
               <div key={field} className="ml-4">
-                <span className="text-[#f0a840]">"{field}"</span>
-                {idx < required.length - 1 && <span className="text-[#9090a8]">,</span>}
+                <span className="text-[var(--c-amber)]">"{field}"</span>
+                {idx < required.length - 1 && <span className="text-[var(--c-text-2)]">,</span>}
               </div>
             ))}
-            <div><span className="text-[#9090a8]">]</span></div>
+            <div><span className="text-[var(--c-text-2)]">]</span></div>
           </div>
         )}
         <div>{'}'}</div>

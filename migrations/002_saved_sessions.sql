@@ -17,11 +17,11 @@ CREATE TABLE IF NOT EXISTS saved_sessions (
   label         VARCHAR(100),          -- e.g. "baseline", "v2.1", "post-migration"
 
   -- MCP server snapshot
-  server_url       TEXT,
-  server_name      TEXT,
-  server_version   TEXT,
-  protocol_version TEXT,
-  transport        TEXT,
+  server_url       VARCHAR(2048),
+  server_name      VARCHAR(255),
+  server_version   VARCHAR(100),
+  protocol_version VARCHAR(50),
+  transport        VARCHAR(50),
 
   -- Capability snapshots (full JSON from listTools / listResources / listPrompts)
   tools         JSONB       NOT NULL DEFAULT '[]',

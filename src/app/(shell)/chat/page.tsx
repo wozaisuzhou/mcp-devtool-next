@@ -107,7 +107,7 @@ export default function ChatPage() {
 
       {/* API key banner */}
       {!claudeApiKey && (
-        <div className="flex items-center gap-3 px-4 py-2.5 bg-[#2a1e08] border-b border-[#3a2a08] text-[#f0a840] text-[12px]">
+        <div className="flex items-center gap-3 px-4 py-2.5 bg-[var(--c-amber-bg)] border-b border-[var(--c-amber-bg-2)] text-[var(--c-amber)] text-[14px]">
           <span>⚠</span>
           <span>Claude API key needed for chat:</span>
           <input
@@ -115,12 +115,12 @@ export default function ChatPage() {
             onChange={e => setKeyInput(e.target.value)}
             type="password"
             placeholder="sk-ant-..."
-            className="bg-[#1a1a1e] border border-[#3a2a08] rounded px-2 py-1 font-mono text-[11px]
-                       text-[#e8e8f0] outline-none w-48"
+            className="bg-[var(--c-bg-2)] border border-[var(--c-amber-bg-2)] rounded px-2 py-1 font-mono text-[13px]
+                       text-[var(--c-text)] outline-none w-48"
           />
           <button
             onClick={() => { setClaudeApiKey(keyInput); localStorage.setItem('mcp_claude_key', keyInput) }}
-            className="px-2 py-1 rounded bg-[#3a2a08] border border-[#4a3a18] text-[#f0a840] text-[11px] hover:bg-[#4a3a18]">
+            className="px-2 py-1 rounded bg-[var(--c-amber-bg-2)] border border-[var(--c-amber-bg-3)] text-[var(--c-amber)] text-[13px] hover:bg-[var(--c-amber-bg-3)]">
             Save
           </button>
         </div>
@@ -129,7 +129,7 @@ export default function ChatPage() {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
         {messages.length === 0 && (
-          <div className="flex items-center justify-center h-full text-[#5a5a70] text-[13px] text-center">
+          <div className="flex items-center justify-center h-full text-[var(--c-text-3)] text-[15px] text-center">
             <div>
               <div className="text-3xl mb-3 opacity-20">◈</div>
               <p>{connected ? `Connected to ${serverInfo?.name}. Ask me anything.` : 'Connect a server, then ask me to use its tools.'}</p>
@@ -144,7 +144,7 @@ export default function ChatPage() {
         {loading && (
           <div className="flex gap-3">
             <Avatar role="assistant" />
-            <div className="bg-[#1a1a1e] border border-[#2a2a32] rounded-xl px-3.5 py-2.5 text-[13px] text-[#5a5a70]">
+            <div className="bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-xl px-3.5 py-2.5 text-[15px] text-[var(--c-text-3)]">
               <span className="spinner" />
             </div>
           </div>
@@ -153,22 +153,22 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-[#2a2a32] bg-[#141416] px-4 py-3 flex gap-3 items-end">
+      <div className="border-t border-[var(--c-border)] bg-[var(--c-bg-1)] px-4 py-3 flex gap-3 items-end">
         <textarea
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
           placeholder="Ask Claude to use your MCP tools… (Enter to send)"
           rows={1}
-          className="flex-1 bg-[#1a1a1e] border border-[#2a2a32] rounded-xl px-3.5 py-2.5 text-[13px]
-                     text-[#e8e8f0] placeholder-[#5a5a70] outline-none resize-none max-h-32
-                     focus:border-[#5a54c4] transition-colors font-sans leading-relaxed"
+          className="flex-1 bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-xl px-3.5 py-2.5 text-[15px]
+                     text-[var(--c-text)] placeholder-[var(--c-text-3)] outline-none resize-none max-h-32
+                     focus:border-[var(--c-purple-2)] transition-colors font-sans leading-relaxed"
         />
         <button
           onClick={send}
           disabled={loading || !input.trim()}
-          className="w-9 h-9 rounded-lg bg-[#5a54c4] text-white flex items-center justify-center
-                     hover:bg-[#7c6ff7] disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0 text-lg"
+          className="w-9 h-9 rounded-lg bg-[var(--c-purple-2)] text-white flex items-center justify-center
+                     hover:bg-[var(--c-purple)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0 text-lg"
         >
           ↑
         </button>
@@ -179,8 +179,8 @@ export default function ChatPage() {
 
 function Avatar({ role }: { role: string }) {
   return (
-    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0
-      ${role === 'user' ? 'bg-[#1e1c3a] text-[#7c6ff7] border border-[#5a54c4]' : 'bg-[#222228] text-[#9090a8] border border-[#2a2a32]'}`}>
+    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold flex-shrink-0
+      ${role === 'user' ? 'bg-[var(--c-purple-bg)] text-[var(--c-purple)] border border-[var(--c-purple-2)]' : 'bg-[var(--c-bg-3)] text-[var(--c-text-2)] border border-[var(--c-border)]'}`}>
       {role === 'user' ? 'You' : 'AI'}
     </div>
   )
@@ -200,20 +200,20 @@ function MessageRow({ msg }: { msg: { role: string; content: string | unknown[] 
       <Avatar role={msg.role} />
       <div className={`max-w-xl flex flex-col gap-2 ${isUser ? 'items-end' : ''}`}>
         {textBlocks && (
-          <div className={`rounded-xl px-3.5 py-2.5 text-[13px] leading-relaxed
+          <div className={`rounded-xl px-3.5 py-2.5 text-[15px] leading-relaxed
             ${isUser
-              ? 'bg-[#1e1c3a] border border-[#5a54c4] text-[#e8e8f0]'
-              : 'bg-[#1a1a1e] border border-[#2a2a32] text-[#e8e8f0]'}`}>
+              ? 'bg-[var(--c-purple-bg)] border border-[var(--c-purple-2)] text-[var(--c-text)]'
+              : 'bg-[var(--c-bg-2)] border border-[var(--c-border)] text-[var(--c-text)]'}`}>
             {textBlocks}
           </div>
         )}
         {(toolUses as any[]).map((tc, i) => (
-          <div key={i} className="bg-[#141416] border border-[#2a2a32] rounded-lg p-3 font-mono text-[11px] w-full">
-            <div className="flex items-center gap-2 mb-2 text-[#7c6ff7] font-semibold">
+          <div key={i} className="bg-[var(--c-bg-1)] border border-[var(--c-border)] rounded-lg p-3 font-mono text-[13px] w-full">
+            <div className="flex items-center gap-2 mb-2 text-[var(--c-purple)] font-semibold">
               <span>⚡</span>
               <span>{tc.name}</span>
             </div>
-            <div className="text-[#9090a8] text-[10px]">
+            <div className="text-[var(--c-text-2)] text-[12px]">
               {JSON.stringify(tc.input, null, 2)}
             </div>
           </div>

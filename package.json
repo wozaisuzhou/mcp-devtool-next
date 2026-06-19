@@ -22,6 +22,7 @@
     "@modelcontextprotocol/sdk": "^1.10.0",
     "@supabase/supabase-js": "^2.108.2",
     "@types/pg": "^8.20.0",
+    "bcryptjs": "^3.0.3",
     "eventsource": "^3.0.0",
     "next": "^14.2.0",
     "pg": "^8.21.0",
@@ -31,6 +32,7 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

@@ -10,6 +10,7 @@ interface TabState {
   name: string
   connected: boolean
   connecting: boolean
+  sessionLoaded: boolean
   config: ConnectionConfig
   serverInfo: ServerInfo | null
   error: string | null
@@ -48,6 +49,15 @@ interface AppStore {
   selectItem: (type: 'tool' | 'resource' | 'prompt', item: MCPTool | MCPResource | MCPPrompt) => void
   addTrace: (t: TraceEvent) => void
   clearTraces: () => void
+  loadSession: (params: {
+    sessionName: string
+    serverUrl: string
+    serverInfo: ServerInfo | null
+    tools: MCPTool[]
+    resources: MCPResource[]
+    prompts: MCPPrompt[]
+    traces: TraceEvent[]
+  }) => void
 
   // ── Chat Actions ───────────────────────────────────────────
   addMessage: (m: ChatMessage) => void
@@ -67,6 +77,7 @@ const createEmptyTab = (id: string, name: string): TabState => ({
   name,
   connected: false,
   connecting: false,
+  sessionLoaded: false,
   config: { url: '', transport: 'auto', authToken: '' },
   serverInfo: null,
   error: null,
@@ -135,7 +146,29 @@ export const useStore = create<AppStore>((set, get) => ({
   setDisconnected: () => set((s) => ({
     tabs: s.tabs.map((t) =>
       t.id === s.activeTabId
-        ? { ...t, connected: false, connecting: false, serverInfo: null, tools: [], resources: [], prompts: [], selectedItem: null, error: null }
+        ? { ...t, connected: false, connecting: false, sessionLoaded: false, serverInfo: null, tools: [], resources: [], prompts: [], selectedItem: null, error: null }
+        : t
+    ),
+  })),
+
+  loadSession: ({ sessionName, serverUrl, serverInfo, tools, resources, prompts, traces }) => set((s) => ({
+    tabs: s.tabs.map((t) =>
+      t.id === s.activeTabId
+        ? {
+            ...t,
+            connected: true,
+            connecting: false,
+            sessionLoaded: true,
+            name: sessionName,
+            config: { ...t.config, url: serverUrl },
+            serverInfo,
+            tools,
+            resources,
+            prompts,
+            traces,
+            error: null,
+            selectedItem: null,
+          }
         : t
     ),
   })),

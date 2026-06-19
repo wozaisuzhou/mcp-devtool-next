@@ -82,16 +82,16 @@ export function ConnectionBar() {
   }
 
   return (
-    <div className="flex flex-col gap-2 bg-[#141416] border-b border-[#2a2a32] flex-shrink-0">
+    <div className="flex flex-col gap-2 bg-[var(--c-bg-1)] border-b border-[var(--c-border)] flex-shrink-0">
       {/* Tab Bar */}
-      <div className="flex items-center px-4 py-2 gap-1 overflow-x-auto border-b border-[#2a2a32]">
+      <div className="flex items-center px-4 py-2 gap-1 overflow-x-auto border-b border-[var(--c-border)]">
         {tabs.map((tab) => (
           <div
             key={tab.id}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-md cursor-pointer transition-colors ${
               activeTabId === tab.id
-                ? 'bg-[#222228] text-[#e8e8f0]'
-                : 'bg-transparent text-[#9090a8] hover:bg-[#1a1a1e]'
+                ? 'bg-[var(--c-bg-3)] text-[var(--c-text)]'
+                : 'bg-transparent text-[var(--c-text-2)] hover:bg-[var(--c-bg-2)]'
             }`}
           >
             {renamingTabId === tab.id ? (
@@ -105,23 +105,23 @@ export function ConnectionBar() {
                   if (e.key === 'Escape') setRenamingTabId(null)
                 }}
                 onClick={() => switchTab(tab.id)}
-                className="bg-[#1a1a1e] border border-[#5a54c4] rounded px-2 py-1 text-[12px] outline-none text-[#e8e8f0]"
+                className="bg-[var(--c-bg-2)] border border-[var(--c-purple-2)] rounded px-2 py-1 text-[14px] outline-none text-[var(--c-text)]"
               />
             ) : (
               <button
                 onClick={() => switchTab(tab.id)}
                 onDoubleClick={() => handleRenameTab(tab.id)}
-                className="text-[12px] font-medium hover:underline"
+                className="text-[14px] font-medium hover:underline"
               >
                 {tab.name}
               </button>
             )}
             {tab.connected && (
-              <span className="w-2 h-2 rounded-full bg-[#7c6ff7] flex-shrink-0" />
+              <span className="w-2 h-2 rounded-full bg-[var(--c-purple)] flex-shrink-0" />
             )}
             <button
               onClick={() => deleteTab(tab.id)}
-              className="text-[10px] text-[#5a5a70] hover:text-[#f06a6a] ml-1"
+              className="text-[12px] text-[var(--c-text-3)] hover:text-[var(--c-red)] ml-1"
               title="Delete server"
             >
               ×
@@ -131,8 +131,8 @@ export function ConnectionBar() {
 
         <button
           onClick={() => handleCreateNewTab()}
-          className="ml-2 px-2 py-1.5 text-[12px] font-semibold bg-[#222228] text-[#9090a8] hover:bg-[#2a2a32]
-                     hover:text-[#e8e8f0] rounded-md transition-colors"
+          className="ml-2 px-2 py-1.5 text-[14px] font-semibold bg-[var(--c-bg-3)] text-[var(--c-text-2)] hover:bg-[var(--c-border)]
+                     hover:text-[var(--c-text)] rounded-md transition-colors"
         >
           + New
         </button>
@@ -141,7 +141,7 @@ export function ConnectionBar() {
       {/* Connection Bar */}
       <div className="flex flex-col gap-2 px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#5a5a70] whitespace-nowrap">
+          <span className="text-[12px] font-bold uppercase tracking-widest text-[var(--c-text-3)] whitespace-nowrap">
             Server
           </span>
 
@@ -151,8 +151,8 @@ export function ConnectionBar() {
             onKeyDown={(e) => e.key === 'Enter' && connect()}
             placeholder="https://your-server.com/mcp"
             disabled={activeTab.connected || activeTab.connecting}
-            className="flex-1 bg-[#1a1a1e] border border-[#2a2a32] rounded-md px-3 py-1.5 text-[12px] font-mono
-                       text-[#e8e8f0] placeholder-[#5a5a70] outline-none focus:border-[#5a54c4]
+            className="w-full bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-md px-3 py-1.5 text-[14px] font-mono
+                       text-[var(--c-text)] placeholder-[var(--c-text-3)] outline-none focus:border-[var(--c-purple-2)]
                        disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           />
 
@@ -160,8 +160,8 @@ export function ConnectionBar() {
             value={transport}
             onChange={(e) => setTransport(e.target.value as TransportType)}
             disabled={activeTab.connected || activeTab.connecting}
-            className="bg-[#1a1a1e] border border-[#2a2a32] rounded-md px-2 py-1.5 text-[12px]
-                       text-[#9090a8] outline-none cursor-pointer disabled:opacity-40"
+            className="bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-md px-2 py-1.5 text-[14px]
+                       text-[var(--c-text-2)] outline-none cursor-pointer disabled:opacity-40"
           >
             <option value="auto">Auto-detect</option>
             <option value="http-sse">HTTP / SSE</option>
@@ -174,16 +174,16 @@ export function ConnectionBar() {
             type="password"
             placeholder={isGitHubCopilot ? "GitHub token" : "Bearer token"}
             disabled={activeTab.connected || activeTab.connecting}
-            className="w-48 bg-[#1a1a1e] border border-[#2a2a32] rounded-md px-3 py-1.5 text-[12px] font-mono
-                       text-[#e8e8f0] placeholder-[#5a5a70] outline-none focus:border-[#5a54c4]
+            className="w-48 bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-md px-3 py-1.5 text-[14px] font-mono
+                       text-[var(--c-text)] placeholder-[var(--c-text-3)] outline-none focus:border-[var(--c-purple-2)]
                        disabled:opacity-40 transition-colors"
           />
 
           {activeTab.connected ? (
             <button
               onClick={disconnect}
-              className="px-3 py-1.5 rounded-md text-[12px] font-semibold bg-[#2a1010] text-[#f06a6a]
-                         border border-[#3a1a1a] hover:bg-[#3a1414] transition-colors"
+              className="px-3 py-1.5 rounded-md text-[14px] font-semibold bg-[var(--c-red-bg)] text-[var(--c-red)]
+                         border border-[var(--c-red-bg-2)] hover:bg-[var(--c-red-bg-3)] transition-colors"
             >
               Disconnect
             </button>
@@ -191,8 +191,8 @@ export function ConnectionBar() {
             <button
               onClick={connect}
               disabled={activeTab.connecting || !url.trim()}
-              className="px-3 py-1.5 rounded-md text-[12px] font-semibold bg-[#5a54c4] text-white
-                         hover:bg-[#7c6ff7] disabled:opacity-40 disabled:cursor-not-allowed transition-colors
+              className="px-3 py-1.5 rounded-md text-[14px] font-semibold bg-[var(--c-purple-2)] text-white
+                         hover:bg-[var(--c-purple)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors
                          flex items-center gap-2"
             >
               {activeTab.connecting ? <span className="spinner">●</span> : 'Connect'}
@@ -201,12 +201,12 @@ export function ConnectionBar() {
         </div>
 
         {isGitHubCopilot && !token && (
-          <div className="text-[11px] text-[#f0a840] bg-[#1a1610] border border-[#2a1a1a] rounded px-3 py-2">
+          <div className="text-[13px] text-[var(--c-amber)] bg-[var(--c-amber-border)] border border-[var(--c-amber-border-2)] rounded px-3 py-2">
             <strong>GitHub Copilot requires authentication:</strong> 
             Enter your GitHub Personal Access Token. Create one at 
             <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" 
-               className="text-[#7c6ff7] hover:underline ml-1">GitHub Settings → Tokens</a>
-            {' '}with scopes: <code className="text-[#9090a8]">repo, read:org</code>
+               className="text-[var(--c-purple)] hover:underline ml-1">GitHub Settings → Tokens</a>
+            {' '}with scopes: <code className="text-[var(--c-text-2)]">repo, read:org</code>
           </div>
         )}
       </div>
@@ -214,8 +214,8 @@ export function ConnectionBar() {
       {/* New Server Dialog */}
       {showNewTabDialog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-[#1a1a1e] border border-[#2a2a32] rounded-lg p-4 w-96 shadow-2xl">
-            <h2 className="text-[13px] font-bold text-[#e8e8f0] mb-3">Create New Server Connection</h2>
+          <div className="bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-lg p-4 w-96 shadow-2xl">
+            <h2 className="text-[15px] font-bold text-[var(--c-text)] mb-3">Create New Server Connection</h2>
             <input
               autoFocus
               value={newServerName}
@@ -225,22 +225,22 @@ export function ConnectionBar() {
                 if (e.key === 'Escape') setShowNewTabDialog(false)
               }}
               placeholder="Server name (optional)"
-              className="w-full bg-[#141416] border border-[#2a2a32] rounded px-3 py-2 text-[12px] font-mono
-                         text-[#e8e8f0] placeholder-[#5a5a70] outline-none focus:border-[#5a54c4]
+              className="w-full bg-[var(--c-bg-1)] border border-[var(--c-border)] rounded px-3 py-2 text-[14px] font-mono
+                         text-[var(--c-text)] placeholder-[var(--c-text-3)] outline-none focus:border-[var(--c-purple-2)]
                          transition-colors mb-4"
             />
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setShowNewTabDialog(false)}
-                className="px-3 py-1.5 text-[12px] font-semibold bg-[#222228] text-[#9090a8]
-                           hover:bg-[#2a2a32] rounded transition-colors"
+                className="px-3 py-1.5 text-[14px] font-semibold bg-[var(--c-bg-3)] text-[var(--c-text-2)]
+                           hover:bg-[var(--c-border)] rounded transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={createNewServer}
-                className="px-3 py-1.5 text-[12px] font-semibold bg-[#5a54c4] text-white
-                           hover:bg-[#7c6ff7] rounded transition-colors"
+                className="px-3 py-1.5 text-[14px] font-semibold bg-[var(--c-purple-2)] text-white
+                           hover:bg-[var(--c-purple)] rounded transition-colors"
               >
                 Create
               </button>

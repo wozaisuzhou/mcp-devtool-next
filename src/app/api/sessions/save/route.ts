@@ -14,6 +14,7 @@ interface SaveSessionBody {
   resources: MCPResource[]
   prompts: MCPPrompt[]
   traces: TraceEvent[]
+  overwrite?: boolean
 }
 
 export async function POST(req: NextRequest) {
@@ -23,10 +24,36 @@ export async function POST(req: NextRequest) {
       name, label, userEmail,
       serverUrl, serverInfo, transport,
       tools = [], resources = [], prompts = [], traces = [],
+      overwrite = false,
     } = body
 
     if (!name?.trim() || !serverUrl?.trim()) {
       return NextResponse.json({ error: 'name and serverUrl are required' }, { status: 400 })
+    }
+    if (!userEmail?.trim()) {
+      return NextResponse.json({ error: 'email is required to save a session' }, { status: 400 })
+    }
+    if (serverUrl.trim().length > 2048) {
+      return NextResponse.json({ error: 'serverUrl exceeds maximum length of 2048 characters' }, { status: 400 })
+    }
+
+    // Check for name collision scoped to this user
+    const { data: existing } = await db
+      .from('saved_sessions')
+      .select('id')
+      .eq('name', name.trim())
+      .eq('user_email', userEmail.trim())
+      .maybeSingle()
+
+    if (existing && !overwrite) {
+      return NextResponse.json(
+        { error: 'A session with this name already exists.', existingId: existing.id },
+        { status: 409 }
+      )
+    }
+
+    if (existing && overwrite) {
+      await db.from('saved_sessions').delete().eq('id', existing.id)
     }
 
     const { data, error } = await db

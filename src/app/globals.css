@@ -2,49 +2,143 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Dark theme (default) ─────────────────────────────────────── */
 :root {
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+  /* backgrounds */
+  --c-bg-base:   #0d0d0f;
+  --c-bg-1:      #141416;
+  --c-bg-2:      #1a1a1e;
+  --c-bg-3:      #222228;
+
+  /* borders */
+  --c-border:    #2a2a32;
+  --c-border-2:  #35353f;
+
+  /* text */
+  --c-text:      #e8e8f0;
+  --c-text-2:    #9090a8;
+  --c-text-3:    #5a5a70;
+
+  /* purple – brand */
+  --c-purple:        #7c6ff7;
+  --c-purple-2:      #5a54c4;
+  --c-purple-bg:     #1e1c3a;
+  --c-purple-hover:  #2a2650;
+  --c-purple-active: #2a2860;
+  --c-purple-border: #2e2a5a;
+
+  /* green */
+  --c-green:        #3dd68c;
+  --c-green-bg:     #0d2a1e;
+  --c-green-bg-2:   #1a3a28;
+  --c-green-dark:   #3d5a3e;
+
+  /* red */
+  --c-red:         #f06a6a;
+  --c-red-bg:      #2a1010;
+  --c-red-bg-2:    #3a1a1a;
+  --c-red-bg-3:    #3a1414;
+  --c-red-bg-4:    #1a0d0d;
+  --c-red-border:  #2a1515;
+  --c-red-deep:    #2a0d0d;
+
+  /* amber */
+  --c-amber:          #f0a840;
+  --c-amber-bg:       #2a1e08;
+  --c-amber-bg-2:     #3a2a08;
+  --c-amber-bg-3:     #4a3a18;
+  --c-amber-border:   #1a1610;
+  --c-amber-border-2: #2a1a1a;
+
+  /* blue */
+  --c-blue:    #60a8f0;
+  --c-blue-bg: #0e1e30;
 }
 
+/* ── Light theme ──────────────────────────────────────────────── */
+[data-theme="light"] {
+  --c-bg-base:   #f2f2f5;
+  --c-bg-1:      #ffffff;
+  --c-bg-2:      #f5f5f8;
+  --c-bg-3:      #eaeaef;
+  --c-border:    #dddde8;
+  --c-border-2:  #c8c8d8;
+  --c-text:      #111118;
+  --c-text-2:    #5a5a80;
+  --c-text-3:    #9090b0;
+
+  /* purple – brand stays the same */
+  --c-purple:        #7c6ff7;
+  --c-purple-2:      #5a54c4;
+  --c-purple-bg:     #eeedf9;
+  --c-purple-hover:  #e3dff8;
+  --c-purple-active: #d8d4f5;
+  --c-purple-border: #c5c0f0;
+
+  --c-green:        #3dd68c;
+  --c-green-bg:     #e6f9f0;
+  --c-green-bg-2:   #ccf2e3;
+  --c-green-dark:   #a8e8c8;
+
+  --c-red:         #f06a6a;
+  --c-red-bg:      #fee8e8;
+  --c-red-bg-2:    #fdd8d8;
+  --c-red-bg-3:    #fccaca;
+  --c-red-bg-4:    #fff2f2;
+  --c-red-border:  #f5c0c0;
+  --c-red-deep:    #fee0e0;
+
+  --c-amber:          #f0a840;
+  --c-amber-bg:       #fef3e0;
+  --c-amber-bg-2:     #fde8c0;
+  --c-amber-bg-3:     #fde0a0;
+  --c-amber-border:   #fce8b8;
+  --c-amber-border-2: #f8d8a8;
+
+  --c-blue:    #60a8f0;
+  --c-blue-bg: #e8f2fe;
+}
+
+/* ── Base styles ──────────────────────────────────────────────── */
 * { box-sizing: border-box; }
 
 body {
-  background: #0d0d0f;
-  color: #e8e8f0;
+  background: var(--c-bg-base);
+  color: var(--c-text);
   font-family: -apple-system, 'Inter', system-ui, sans-serif;
-  height: 100vh;
-  overflow: hidden;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #222228; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #35353f; }
+::-webkit-scrollbar-thumb { background: var(--c-bg-3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--c-border-2); }
 
 /* Mono font utility */
 .font-mono { font-family: var(--font-mono) !important; }
 
 /* Focus ring */
-:focus-visible { outline: 2px solid #5a54c4; outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--c-purple); outline-offset: 2px; }
 
 /* Spinner */
 @keyframes spin { to { transform: rotate(360deg); } }
 .spinner {
   display: inline-block;
   width: 12px; height: 12px;
-  border: 2px solid #2a2a32;
-  border-top-color: #7c6ff7;
+  border: 2px solid var(--c-border);
+  border-top-color: var(--c-purple);
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
 
 /* Status dot pulse */
 @keyframes pulse-green {
-  0%, 100% { box-shadow: 0 0 4px #3dd68c; }
-  50% { box-shadow: 0 0 10px #3dd68c; }
+  0%, 100% { box-shadow: 0 0 4px var(--c-green); }
+  50% { box-shadow: 0 0 10px var(--c-green); }
 }
 .dot-connected {
-  background: #3dd68c;
+  background: var(--c-green);
   animation: pulse-green 2s ease-in-out infinite;
 }

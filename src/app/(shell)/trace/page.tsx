@@ -29,12 +29,12 @@ export default function TracePage() {
     <div className="flex flex-col h-full">
 
       {/* Toolbar */}
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-[#2a2a32] bg-[#141416] flex-shrink-0">
-        <span className="text-[12px] font-semibold text-[#9090a8]">Call history</span>
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-[var(--c-border)] bg-[var(--c-bg-1)] flex-shrink-0">
+        <span className="text-[14px] font-semibold text-[var(--c-text-2)]">Call history</span>
         <select
           value={filter}
           onChange={e => setFilter(e.target.value as typeof filter)}
-          className="bg-[#1a1a1e] border border-[#2a2a32] rounded-md px-2 py-1 text-[12px] text-[#9090a8] outline-none cursor-pointer"
+          className="bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-md px-2 py-1 text-[14px] text-[var(--c-text-2)] outline-none cursor-pointer"
         >
           <option value="all">All</option>
           <option value="success">Success</option>
@@ -44,18 +44,18 @@ export default function TracePage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Filter by tool name…"
-          className="bg-[#1a1a1e] border border-[#2a2a32] rounded-md px-3 py-1 text-[12px] text-[#e8e8f0]
-                     placeholder-[#5a5a70] outline-none w-48 focus:border-[#5a54c4] transition-colors"
+          className="bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-md px-3 py-1 text-[14px] text-[var(--c-text)]
+                     placeholder-[var(--c-text-3)] outline-none w-48 focus:border-[var(--c-purple-2)] transition-colors"
         />
         <div className="flex-1" />
         <button onClick={exportJSON}
-          className="px-3 py-1 rounded-md text-[11px] font-semibold bg-[#1a1a1e] border border-[#2a2a32]
-                     text-[#9090a8] hover:text-[#e8e8f0] transition-colors">
+          className="px-3 py-1 rounded-md text-[13px] font-semibold bg-[var(--c-bg-2)] border border-[var(--c-border)]
+                     text-[var(--c-text-2)] hover:text-[var(--c-text)] transition-colors">
           Export JSON
         </button>
         <button onClick={() => { clearTraces(); setSelected(null) }}
-          className="px-3 py-1 rounded-md text-[11px] font-semibold bg-[#2a1010] border border-[#3a1a1a]
-                     text-[#f06a6a] hover:bg-[#3a1414] transition-colors">
+          className="px-3 py-1 rounded-md text-[13px] font-semibold bg-[var(--c-red-bg)] border border-[var(--c-red-bg-2)]
+                     text-[var(--c-red)] hover:bg-[var(--c-red-bg-3)] transition-colors">
           Clear all
         </button>
       </div>
@@ -63,12 +63,12 @@ export default function TracePage() {
       <div className="flex flex-1 overflow-hidden">
 
         {/* Trace list */}
-        <div className="w-80 flex-shrink-0 border-r border-[#2a2a32] overflow-y-auto">
+        <div className="w-80 flex-shrink-0 border-r border-[var(--c-border)] overflow-y-auto">
           {filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-[#5a5a70] text-[12px] gap-2">
+            <div className="flex flex-col items-center justify-center h-full text-[var(--c-text-3)] text-[14px] gap-2">
               <span className="text-3xl opacity-20">◎</span>
               <p>{traces.length > 0 ? 'No matches' : 'No traces yet'}</p>
-              <p className="text-[10px] opacity-60">Run tools to see history here</p>
+              <p className="text-[12px] opacity-60">Run tools to see history here</p>
             </div>
           ) : (
             filtered.map(t => (
@@ -87,7 +87,7 @@ export default function TracePage() {
           {selected
             ? <TraceDetail trace={selected} />
             : (
-              <div className="flex items-center justify-center h-full text-[#5a5a70] text-[12px]">
+              <div className="flex items-center justify-center h-full text-[var(--c-text-3)] text-[14px]">
                 Select a trace to inspect
               </div>
             )
@@ -102,19 +102,19 @@ function TraceRow({ trace, active, onClick }: { trace: TraceEvent; active: boole
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left px-3.5 py-2.5 border-b border-[#2a2a32] transition-colors
-        ${active ? 'bg-[#1e1c3a] border-l-2 border-l-[#7c6ff7]' : 'hover:bg-[#1a1a1e]'}`}
+      className={`w-full text-left px-3.5 py-2.5 border-b border-[var(--c-border)] transition-colors
+        ${active ? 'bg-[var(--c-purple-bg)] border-l-2 border-l-[var(--c-purple)]' : 'hover:bg-[var(--c-bg-2)]'}`}
     >
       <div className="flex items-center gap-2">
         <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
-          trace.status === 'success' ? 'bg-[#3dd68c]' : 'bg-[#f06a6a]'
+          trace.status === 'success' ? 'bg-[var(--c-green)]' : 'bg-[var(--c-red)]'
         }`} />
-        <span className="font-mono text-[12px] font-semibold text-[#e8e8f0] flex-1 truncate">
+        <span className="font-mono text-[14px] font-semibold text-[var(--c-text)] flex-1 truncate">
           {trace.tool}
         </span>
-        <span className="font-mono text-[11px] text-[#5a5a70]">{trace.durationMs}ms</span>
+        <span className="font-mono text-[13px] text-[var(--c-text-3)]">{trace.durationMs}ms</span>
       </div>
-      <div className="flex gap-3 mt-1 text-[11px] text-[#5a5a70] pl-4">
+      <div className="flex gap-3 mt-1 text-[13px] text-[var(--c-text-3)] pl-4">
         <span>{trace.source}</span>
         <span>{formatTime(trace.timestamp)}</span>
         <span className="truncate">{trace.serverId}</span>
@@ -131,21 +131,21 @@ function TraceDetail({ trace }: { trace: TraceEvent }) {
 
       {/* Header row */}
       <div className="flex items-center gap-3">
-        <span className="font-mono text-[15px] font-bold text-[#e8e8f0]">{trace.tool}</span>
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-          trace.status === 'success' ? 'bg-[#0d2a1e] text-[#3dd68c]' : 'bg-[#2a1010] text-[#f06a6a]'
+        <span className="font-mono text-[17px] font-bold text-[var(--c-text)]">{trace.tool}</span>
+        <span className={`text-[12px] font-bold px-2 py-0.5 rounded ${
+          trace.status === 'success' ? 'bg-[var(--c-green-bg)] text-[var(--c-green)]' : 'bg-[var(--c-red-bg)] text-[var(--c-red)]'
         }`}>{trace.status}</span>
-        <span className="ml-auto text-[12px] text-[#5a5a70] font-mono">{trace.durationMs}ms · {formatTime(trace.timestamp)}</span>
+        <span className="ml-auto text-[14px] text-[var(--c-text-3)] font-mono">{trace.durationMs}ms · {formatTime(trace.timestamp)}</span>
       </div>
 
       {/* Waterfall */}
       <Section title="Duration">
-        <div className="bg-[#1a1a1e] rounded-lg px-3 py-2.5">
-          <div className="flex justify-between text-[10px] text-[#5a5a70] font-mono mb-2">
+        <div className="bg-[var(--c-bg-2)] rounded-lg px-3 py-2.5">
+          <div className="flex justify-between text-[12px] text-[var(--c-text-3)] font-mono mb-2">
             <span>0ms</span><span>{trace.durationMs}ms</span>
           </div>
-          <div className="bg-[#222228] rounded h-2">
-            <div className="h-2 rounded bg-[#7c6ff7] opacity-80" style={{ width: `${barWidth}%` }} />
+          <div className="bg-[var(--c-bg-3)] rounded h-2">
+            <div className="h-2 rounded bg-[var(--c-purple)] opacity-80" style={{ width: `${barWidth}%` }} />
           </div>
         </div>
       </Section>
@@ -157,14 +157,14 @@ function TraceDetail({ trace }: { trace: TraceEvent }) {
 
       {/* Output / Error */}
       <Section title={trace.status === 'error' ? 'Error' : 'Output'}>
-        <CodeBlock className={trace.status === 'error' ? 'text-[#f06a6a] bg-[#2a1010] border-[#3a1a1a]' : 'text-[#3dd68c] bg-[#0d2a1e] border-[#1a3a28]'}>
+        <CodeBlock className={trace.status === 'error' ? 'text-[var(--c-red)] bg-[var(--c-red-bg)] border-[var(--c-red-bg-2)]' : 'text-[var(--c-green)] bg-[var(--c-green-bg)] border-[var(--c-green-bg-2)]'}>
           {trace.error ?? JSON.stringify(trace.output, null, 2)}
         </CodeBlock>
       </Section>
 
       {/* Meta */}
       <Section title="Metadata">
-        <CodeBlock className="text-[10px]">
+        <CodeBlock className="text-[12px]">
           {JSON.stringify({ id: trace.id, type: trace.type, source: trace.source, serverId: trace.serverId, timestamp: trace.timestamp }, null, 2)}
         </CodeBlock>
       </Section>
@@ -175,7 +175,7 @@ function TraceDetail({ trace }: { trace: TraceEvent }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-[10px] font-bold uppercase tracking-widest text-[#5a5a70] mb-2">{title}</p>
+      <p className="text-[12px] font-bold uppercase tracking-widest text-[var(--c-text-3)] mb-2">{title}</p>
       {children}
     </div>
   )
@@ -183,8 +183,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function CodeBlock({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <pre className={`bg-[#1a1a1e] border border-[#2a2a32] rounded-lg p-3 font-mono text-[11px]
-                    text-[#9090a8] overflow-x-auto whitespace-pre-wrap break-all leading-relaxed ${className}`}>
+    <pre className={`bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-lg p-3 font-mono text-[13px]
+                    text-[var(--c-text-2)] overflow-x-auto whitespace-pre-wrap break-all leading-relaxed ${className}`}>
       {children}
     </pre>
   )

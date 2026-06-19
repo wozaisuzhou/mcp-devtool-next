@@ -88,11 +88,11 @@ export function Sidebar() {
 
   return (
     <>
-      <aside style={{ width: `${sidebarWidth}px` }} className="flex-shrink-0 border-r border-[#2a2a32] flex flex-col overflow-hidden bg-[#0d0d0f] relative">
+      <aside style={{ width: `${sidebarWidth}px` }} className="flex-shrink-0 border-r border-[var(--c-border)] flex flex-col overflow-x-hidden overflow-y-auto bg-[var(--c-bg-base)] relative">
       <Section
         title="Tools"
         count={filteredTools.length}
-        countColor="text-[#7c6ff7] bg-[#1e1c3a]"
+        countColor="text-[var(--c-purple)] bg-[var(--c-purple-bg)]"
         height={sectionHeights.tools}
         onSearch={setSearchTools}
         searchValue={searchTools}
@@ -103,7 +103,7 @@ export function Sidebar() {
             icon="T"
             label={t.name}
             badge="TOOL"
-            badgeClass="bg-[#1e1c3a] text-[#7c6ff7]"
+            badgeClass="bg-[var(--c-purple-bg)] text-[var(--c-purple)]"
             active={selectedItem?.type === 'tool' && (selectedItem.item as MCPTool).name === t.name}
             onClick={() => selectItem('tool', t)}
           />
@@ -113,8 +113,8 @@ export function Sidebar() {
       {/* Resize Handle 1 */}
       <div
         onMouseDown={(e) => handleResizeStart('tools-resources', e)}
-        className={`h-1 cursor-row-resize hover:bg-[#7c6ff7] transition-colors ${
-          resizingSection === 'tools-resources' ? 'bg-[#7c6ff7]' : 'bg-transparent'
+        className={`h-1 cursor-row-resize hover:bg-[var(--c-purple)] transition-colors ${
+          resizingSection === 'tools-resources' ? 'bg-[var(--c-purple)]' : 'bg-transparent'
         }`}
         style={{ userSelect: 'none' }}
       />
@@ -122,7 +122,7 @@ export function Sidebar() {
       <Section
         title="Resources"
         count={filteredResources.length}
-        countColor="text-[#60a8f0] bg-[#0e1e30]"
+        countColor="text-[var(--c-blue)] bg-[var(--c-blue-bg)]"
         height={sectionHeights.resources}
         onSearch={setSearchResources}
         searchValue={searchResources}
@@ -133,7 +133,7 @@ export function Sidebar() {
             icon="R"
             label={r.name}
             badge="RES"
-            badgeClass="bg-[#0e1e30] text-[#60a8f0]"
+            badgeClass="bg-[var(--c-blue-bg)] text-[var(--c-blue)]"
             active={selectedItem?.type === 'resource' && (selectedItem.item as MCPResource).uri === r.uri}
             onClick={() => selectItem('resource', r)}
           />
@@ -143,8 +143,8 @@ export function Sidebar() {
       {/* Resize Handle 2 */}
       <div
         onMouseDown={(e) => handleResizeStart('resources-prompts', e)}
-        className={`h-1 cursor-row-resize hover:bg-[#7c6ff7] transition-colors ${
-          resizingSection === 'resources-prompts' ? 'bg-[#7c6ff7]' : 'bg-transparent'
+        className={`h-1 cursor-row-resize hover:bg-[var(--c-purple)] transition-colors ${
+          resizingSection === 'resources-prompts' ? 'bg-[var(--c-purple)]' : 'bg-transparent'
         }`}
         style={{ userSelect: 'none' }}
       />
@@ -152,7 +152,7 @@ export function Sidebar() {
       <Section
         title="Prompts"
         count={filteredPrompts.length}
-        countColor="text-[#f0a840] bg-[#2a1e08]"
+        countColor="text-[var(--c-amber)] bg-[var(--c-amber-bg)]"
         height={sectionHeights.prompts}
         onSearch={setSearchPrompts}
         searchValue={searchPrompts}
@@ -163,7 +163,7 @@ export function Sidebar() {
             icon="P"
             label={p.name}
             badge="PROMPT"
-            badgeClass="bg-[#2a1e08] text-[#f0a840]"
+            badgeClass="bg-[var(--c-amber-bg)] text-[var(--c-amber)]"
             active={selectedItem?.type === 'prompt' && (selectedItem.item as MCPPrompt).name === p.name}
             onClick={() => selectItem('prompt', p)}
           />
@@ -174,8 +174,8 @@ export function Sidebar() {
       <div
         ref={resizeRef}
         onMouseDown={() => setIsResizing(true)}
-        className={`absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-[#7c6ff7] transition-colors ${
-          isResizing ? 'bg-[#7c6ff7]' : 'bg-transparent'
+        className={`absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-[var(--c-purple)] transition-colors ${
+          isResizing ? 'bg-[var(--c-purple)]' : 'bg-transparent'
         }`}
         style={{ userSelect: 'none' }}
       />
@@ -194,10 +194,10 @@ function Section({ title, count, countColor, height, onSearch, searchValue, chil
   children: React.ReactNode
 }) {
   return (
-    <div className="border-b border-[#2a2a32] flex flex-col flex-1">
+    <div className="border-b border-[var(--c-border)] flex flex-col flex-shrink-0">
       <div className="flex items-center justify-between px-3.5 py-2 flex-shrink-0">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-[#5a5a70]">{title}</span>
-        <span className={`text-[10px] font-bold px-1.5 py-px rounded-full ${countColor}`}>{count}</span>
+        <span className="text-[12px] font-bold uppercase tracking-widest text-[var(--c-text-3)]">{title}</span>
+        <span className={`text-[12px] font-bold px-1.5 py-px rounded-full ${countColor}`}>{count}</span>
       </div>
       {onSearch && (
         <div className="px-2 pb-2 flex-shrink-0">
@@ -205,8 +205,8 @@ function Section({ title, count, countColor, height, onSearch, searchValue, chil
             value={searchValue || ''}
             onChange={(e) => onSearch(e.target.value)}
             placeholder="Search…"
-            className="w-full bg-[#1a1a1e] border border-[#2a2a32] rounded px-2 py-1 text-[11px]
-                       text-[#e8e8f0] placeholder-[#5a5a70] outline-none focus:border-[#5a54c4]
+            className="w-full bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded px-2 py-1 text-[13px]
+                       text-[var(--c-text)] placeholder-[var(--c-text-3)] outline-none focus:border-[var(--c-purple-2)]
                        transition-colors"
           />
         </div>
@@ -227,14 +227,14 @@ function SidebarItem({ icon, label, badge, badgeClass, active, onClick }: {
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-2 px-3.5 py-2 text-[12px] text-left transition-colors
+      className={`w-full flex items-center gap-2 px-3.5 py-2 text-[14px] text-left transition-colors
         ${active
-          ? 'bg-[#1e1c3a] text-[#7c6ff7]'
-          : 'text-[#9090a8] hover:bg-[#1a1a1e] hover:text-[#e8e8f0]'
+          ? 'bg-[var(--c-purple-bg)] text-[var(--c-purple)]'
+          : 'text-[var(--c-text-2)] hover:bg-[var(--c-bg-2)] hover:text-[var(--c-text)]'
         }`}
     >
       <span className={`w-5 h-5 rounded flex items-center justify-center text-[9px] font-bold flex-shrink-0
-        ${active ? 'bg-[#2a2860] text-[#7c6ff7]' : 'bg-[#222228] text-[#5a5a70]'}`}>
+        ${active ? 'bg-[var(--c-purple-active)] text-[var(--c-purple)]' : 'bg-[var(--c-bg-3)] text-[var(--c-text-3)]'}`}>
         {icon}
       </span>
       <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-mono">{label}</span>
