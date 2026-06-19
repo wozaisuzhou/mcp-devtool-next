@@ -48,9 +48,8 @@ function ResetPasswordForm() {
       <div className="bg-[var(--c-bg-1)] border border-[var(--c-border)] rounded-xl shadow-2xl w-full max-w-sm">
 
         <div className="px-6 pt-6 pb-4 border-b border-[var(--c-border)]">
-          <div className="flex items-center gap-2 mb-3">
-            <Image src="/logo.png" alt="FlashMan.ai" width={24} height={24} className="rounded-md" />
-            <span className="font-bold text-[16px] tracking-tight text-[var(--c-text)]">FlashMan.ai</span>
+          <div className="flex items-center mb-3">
+            <Image src="/logo.png" alt="Flashman AI" width={110} height={60} className="object-contain" />
           </div>
           <h2 className="text-[17px] font-semibold text-[var(--c-text)]">Set new password</h2>
           <p className="text-[14px] text-[var(--c-text-2)] mt-0.5">Choose a new password for your account.</p>

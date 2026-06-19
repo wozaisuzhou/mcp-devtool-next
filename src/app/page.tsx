@@ -69,9 +69,8 @@ export default function LandingPage() {
       {/* ── Navbar ── */}
       <header className="sticky top-0 z-40 border-b border-[var(--c-border)] bg-[var(--c-bg-base)]/90 backdrop-blur-md">
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <Image src="/logo.png" alt="FlashMan.ai" width={30} height={30} className="rounded-md" />
-            <span className="font-bold text-[16px] tracking-tight text-[var(--c-text)]">FlashMan.ai</span>
+          <div className="flex items-center">
+            <Image src="/logo.png" alt="Flashman AI" width={88} height={48} className="object-contain" />
           </div>
           <div className="flex items-center gap-2">
             {ready && !user ? (
@@ -115,22 +114,12 @@ export default function LandingPage() {
         <div className="relative flex flex-col items-center gap-6 max-w-2xl">
           <Image
             src="/logo.png"
-            alt="FlashMan.ai"
-            width={96}
-            height={96}
-            className="rounded-2xl shadow-2xl"
+            alt="Flashman AI"
+            width={260}
+            height={142}
+            className="object-contain drop-shadow-2xl"
             priority
           />
-
-          <div className="flex flex-col gap-3">
-            <h1 className="text-[48px] sm:text-[56px] font-extrabold tracking-tight leading-[1.05]"
-                style={{ background: 'linear-gradient(135deg, #e8e8f0 30%, #7c6ff7 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              FlashMan.ai
-            </h1>
-            <p className="text-[18px] sm:text-[20px] text-[var(--c-text-2)] font-medium">
-              Test. Debug. Monitor MCP Servers.
-            </p>
-          </div>
 
           <p className="text-[15px] text-[var(--c-text-3)] leading-relaxed max-w-[480px]">
             The complete developer toolkit for building, testing, and debugging
@@ -224,8 +213,8 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <div className="rounded-2xl border border-[var(--c-purple-border)] bg-[var(--c-purple-bg)] p-10 text-center"
                style={{ background: 'linear-gradient(135deg, rgba(30,28,58,0.8) 0%, rgba(22,20,50,0.6) 100%)' }}>
-            <Image src="/logo.png" alt="FlashMan.ai" width={56} height={56} className="mx-auto mb-5 rounded-xl" />
-            <h2 className="text-[26px] font-bold text-[var(--c-text)] mb-2">Start debugging smarter</h2>
+            <Image src="/logo.png" alt="Flashman AI" width={146} height={80} className="mx-auto mb-5 object-contain" />
+            <h2 className="text-[26px] font-bold text-[var(--c-text)] mb-2">Ready to ship faster?</h2>
             <p className="text-[14px] text-[var(--c-text-3)] mb-7 max-w-md mx-auto">
               Open the inspector now — no install, no config. Connect your MCP server URL and go.
             </p>
