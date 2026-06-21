@@ -21,6 +21,8 @@ export function ConnectionBar() {
   const activeTab = getActiveTab()
   if (!activeTab) return null
 
+  const liveConnected = activeTab.connected && !activeTab.sessionLoaded
+
   const [url, setUrl] = useState(activeTab.config.url || '')
   const [transport, setTransport] = useState<TransportType>(activeTab.config.transport || 'auto')
   const [token, setToken] = useState(activeTab.config.authToken || '')
@@ -116,7 +118,7 @@ export function ConnectionBar() {
                 {tab.name}
               </button>
             )}
-            {tab.connected && (
+            {tab.connected && !tab.sessionLoaded && (
               <span className="w-2 h-2 rounded-full bg-[var(--c-purple)] flex-shrink-0" />
             )}
             <button
@@ -150,7 +152,7 @@ export function ConnectionBar() {
             onChange={(e) => setUrl(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && connect()}
             placeholder="https://your-server.com/mcp"
-            disabled={activeTab.connected || activeTab.connecting}
+            disabled={liveConnected || activeTab.connecting}
             className="w-full bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-md px-3 py-1.5 text-[14px] font-mono
                        text-[var(--c-text)] placeholder-[var(--c-text-3)] outline-none focus:border-[var(--c-purple-2)]
                        disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
@@ -159,7 +161,7 @@ export function ConnectionBar() {
           <select
             value={transport}
             onChange={(e) => setTransport(e.target.value as TransportType)}
-            disabled={activeTab.connected || activeTab.connecting}
+            disabled={liveConnected || activeTab.connecting}
             className="bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-md px-2 py-1.5 text-[14px]
                        text-[var(--c-text-2)] outline-none cursor-pointer disabled:opacity-40"
           >
@@ -173,13 +175,13 @@ export function ConnectionBar() {
             onChange={(e) => setToken(e.target.value)}
             type="password"
             placeholder={isGitHubCopilot ? "GitHub token" : "Bearer token"}
-            disabled={activeTab.connected || activeTab.connecting}
+            disabled={liveConnected || activeTab.connecting}
             className="w-48 bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-md px-3 py-1.5 text-[14px] font-mono
                        text-[var(--c-text)] placeholder-[var(--c-text-3)] outline-none focus:border-[var(--c-purple-2)]
                        disabled:opacity-40 transition-colors"
           />
 
-          {activeTab.connected ? (
+          {liveConnected ? (
             <button
               onClick={disconnect}
               className="px-3 py-1.5 rounded-md text-[14px] font-semibold bg-[var(--c-red-bg)] text-[var(--c-red)]

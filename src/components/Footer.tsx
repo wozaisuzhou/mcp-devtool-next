@@ -1,5 +1,5 @@
-import Image from 'next/image'
 import Link from 'next/link'
+import { Logo } from '@/components/Logo'
 
 const APP_LINKS = [
   { href: '/inspector', label: 'Inspector' },
@@ -9,7 +9,31 @@ const APP_LINKS = [
   { href: '/oauth',     label: 'OAuth' },
 ]
 
-export function Footer() {
+export function Footer({ compact = false }: { compact?: boolean }) {
+  if (compact) {
+    return (
+      <footer className="flex-shrink-0 border-t border-[var(--c-border)] bg-[var(--c-bg-1)]">
+        <div className="px-5 py-3 flex items-center justify-between gap-4">
+          <Logo className="text-[15px]" />
+          <div className="flex items-center gap-4">
+            {APP_LINKS.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="text-[12px] text-[var(--c-text-3)] hover:text-[var(--c-text)] transition-colors"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+          <p className="text-[12px] text-[var(--c-text-3)] ml-auto">
+            © {new Date().getFullYear()} Bubble AI
+          </p>
+        </div>
+      </footer>
+    )
+  }
+
   return (
     <footer className="border-t border-[var(--c-border)] bg-[var(--c-bg-1)]">
       <div className="max-w-5xl mx-auto px-6 py-10">
@@ -17,7 +41,7 @@ export function Footer() {
 
           {/* Brand */}
           <div className="flex flex-col gap-2">
-            <Image src="/logo.png" alt="Flashman AI" width={120} height={66} className="object-contain" />
+            <Logo className="text-[22px]" />
           </div>
 
           {/* App links */}
@@ -41,7 +65,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-8 pt-6 border-t border-[var(--c-border)] flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-[12px] text-[var(--c-text-3)]">
-            © {new Date().getFullYear()} FlashMan.ai. All rights reserved.
+            © {new Date().getFullYear()} Bubble AI. All rights reserved.
           </p>
           <p className="text-[12px] text-[var(--c-text-3)]">
             Built for MCP developers.

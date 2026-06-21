@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import db from '@/lib/db'
+import { getUserPlan, PLAN_LIMITS } from '@/lib/limits'
 import type { MCPTool, MCPResource, MCPPrompt, ServerInfo, TraceEvent } from '@/lib/types'
 import type { ConnectionConfig } from '@/lib/types'
 
@@ -35,6 +36,19 @@ export async function POST(req: NextRequest) {
     }
     if (serverUrl.trim().length > 2048) {
       return NextResponse.json({ error: 'serverUrl exceeds maximum length of 2048 characters' }, { status: 400 })
+    }
+
+    const plan = await getUserPlan(userEmail.trim())
+    const sessionLimit = PLAN_LIMITS[plan].sessions
+    const { count } = await db
+      .from('saved_sessions')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_email', userEmail.trim())
+    if ((count ?? 0) >= sessionLimit) {
+      return NextResponse.json(
+        { error: `Session limit reached (${sessionLimit} for ${plan} plan). Delete an existing session to free up space.` },
+        { status: 403 }
+      )
     }
 
     // Check for name collision scoped to this user

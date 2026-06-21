@@ -1,0 +1,2 @@
+ALTER TABLE registered_users
+  ADD COLUMN IF NOT EXISTS plan VARCHAR(20) NOT NULL DEFAULT 'free';

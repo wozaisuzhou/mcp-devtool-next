@@ -101,7 +101,7 @@ export function DetailPane() {
       <div className="flex-1 overflow-hidden flex gap-4 p-5">
 
         {/* Left: schema */}
-        <div className="flex-1 flex flex-col gap-4 overflow-y-auto">
+        <div className="flex-1 flex flex-col gap-4 overflow-y-auto pb-10">
           <div>
             <FieldLabel>Input schema</FieldLabel>
             <SchemaBlock schema={schema} />
@@ -115,7 +115,7 @@ export function DetailPane() {
         </div>
 
         {/* Right: run */}
-        <div className="flex-1 flex flex-col gap-3 overflow-y-auto">
+        <div className="flex-1 flex flex-col gap-3 overflow-y-auto pb-10">
           <div className="flex items-center justify-between">
             <FieldLabel>Input (JSON)</FieldLabel>
             <button onClick={formatInput}

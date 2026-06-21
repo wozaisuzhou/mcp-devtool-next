@@ -1,30 +1,22 @@
 'use client'
-import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { Logo } from '@/components/Logo'
 import { useState } from 'react'
 import { useStore } from '@/store'
 import { ConnectionBar } from '@/components/ConnectionBar'
+import { NavSidebar } from '@/components/NavSidebar'
 import { SaveSessionModal } from '@/components/SaveSessionModal'
 import { SignUpGateModal } from '@/components/SignUpGateModal'
 import { SignInModal } from '@/components/SignInModal'
 import { ChangePasswordModal } from '@/components/ChangePasswordModal'
 import { useRegisteredUser } from '@/hooks/useRegisteredUser'
+import { Footer } from '@/components/Footer'
 import { useTheme } from '@/hooks/useTheme'
 import type { RegisteredUser } from '@/hooks/useRegisteredUser'
-
-const TABS = [
-  { href: '/inspector', label: 'Inspector', icon: '⬡' },
-  { href: '/chat',      label: 'Chat',      icon: '◈' },
-  { href: '/trace',     label: 'Trace',     icon: '◎' },
-  { href: '/sessions',  label: 'Sessions',  icon: '⇄' },
-  { href: '/oauth',     label: 'OAuth',     icon: '◆' },
-]
 
 type Modal = 'none' | 'signup' | 'signin' | 'save' | 'change-password'
 
 export default function ShellLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
   const [modal, setModal] = useState<Modal>('none')
   const { getActiveTab } = useStore()
   const { user, ready, saveUser, clearUser } = useRegisteredUser()
@@ -51,66 +43,43 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
     <div className="flex flex-col h-screen overflow-hidden">
 
       {/* ── Topbar ── */}
-      <header className="flex items-center h-12 px-4 gap-6 border-b border-[var(--c-border)] bg-[var(--c-bg-1)] flex-shrink-0">
+      <header className="flex items-center h-12 px-4 gap-4 border-b border-[var(--c-border)] bg-[var(--c-bg-1)] flex-shrink-0">
 
         {/* Logo */}
-        <Link href="/" className="flex items-center mr-2 hover:opacity-80 transition-opacity">
-          <Image src="/logo.png" alt="Flashman AI" width={80} height={44} className="object-contain" />
+        <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
+          <Logo className="text-[17px]" />
         </Link>
 
-        {/* Tabs */}
-        <nav className="flex gap-1 flex-1">
-          {TABS.map(({ href, label, icon }) => {
-            const active = pathname.startsWith(href)
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[15px] font-medium transition-colors
-                  ${active
-                    ? 'bg-[var(--c-bg-3)] text-[var(--c-text)]'
-                    : 'text-[var(--c-text-2)] hover:text-[var(--c-text)] hover:bg-[var(--c-bg-2)]'
-                  }`}
-              >
-                <span className="text-[13px] opacity-60">{icon}</span>
-                {label}
-                {label === 'Trace' && traces.length > 0 && (
-                  <span className="bg-[var(--c-purple-bg)] text-[var(--c-purple)] text-[12px] font-bold px-1.5 py-px rounded-full">
-                    {traces.length}
-                  </span>
-                )}
-              </Link>
-            )
-          })}
-        </nav>
-
-        {/* Status + Save Session */}
-        <div className="flex items-center gap-3 text-[14px]">
-          <div className="flex items-center gap-2">
-            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-              connecting    ? 'bg-[var(--c-amber)] animate-pulse' :
-              sessionLoaded ? 'bg-[var(--c-blue)]' :
-              connected     ? 'dot-connected' :
-                              'bg-[var(--c-text-3)]'
-            }`} />
-            <span className="text-[var(--c-text-2)]">
-              {connecting    ? 'Connecting…' :
-               sessionLoaded ? serverInfo?.name ?? 'Snapshot' :
-               connected     ? serverInfo?.name ?? 'Connected' :
-                               'Not connected'}
+        {/* Connection status */}
+        <div className="flex items-center gap-2 text-[13px] text-[var(--c-text-2)] ml-1">
+          <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+            connecting    ? 'bg-[var(--c-amber)] animate-pulse' :
+            sessionLoaded ? 'bg-[var(--c-blue)]' :
+            connected     ? 'dot-connected' :
+                            'bg-[var(--c-text-3)]'
+          }`} />
+          <span>
+            {connecting    ? 'Connecting…' :
+             sessionLoaded ? serverInfo?.name ?? 'Snapshot' :
+             connected     ? serverInfo?.name ?? 'Connected' :
+                             'Not connected'}
+          </span>
+          {sessionLoaded && (
+            <span className="text-[11px] font-bold px-1.5 py-px rounded-full bg-[var(--c-blue-bg)] text-[var(--c-blue)]">
+              snapshot
             </span>
-            {sessionLoaded && (
-              <span className="text-[12px] font-bold px-1.5 py-px rounded-full bg-[var(--c-blue-bg)] text-[var(--c-blue)]">
-                snapshot
-              </span>
-            )}
-            {connected && !sessionLoaded && serverInfo && (
-              <span className="text-[var(--c-text-3)] font-mono text-[12px]">
-                v{serverInfo.version}
-              </span>
-            )}
-          </div>
+          )}
+          {connected && !sessionLoaded && serverInfo && (
+            <span className="text-[var(--c-text-3)] font-mono text-[11px]">
+              v{serverInfo.version}
+            </span>
+          )}
+        </div>
 
+        <div className="flex-1" />
+
+        {/* Right-side actions */}
+        <div className="flex items-center gap-2">
           <button
             onClick={toggleTheme}
             title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
@@ -135,14 +104,14 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setModal('signin')}
-                className="px-3 py-1.5 rounded-md text-[14px] font-medium
+                className="px-3 py-1.5 rounded-md text-[13px] font-medium
                            text-[var(--c-text-2)] hover:text-[var(--c-text)] hover:bg-[var(--c-bg-2)] transition-colors"
               >
                 Sign in
               </button>
               <button
                 onClick={() => setModal('signup')}
-                className="px-3 py-1.5 rounded-md text-[14px] font-medium
+                className="px-3 py-1.5 rounded-md text-[13px] font-medium
                            bg-[var(--c-bg-3)] text-[var(--c-text)] hover:bg-[var(--c-border)] transition-colors"
               >
                 Sign up
@@ -151,8 +120,8 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
           )}
 
           {user && (
-            <div className="flex items-center gap-1.5">
-              <span className="text-[var(--c-text-3)] text-[13px]">{user.name ?? user.email}</span>
+            <div className="flex items-center gap-1">
+              <span className="text-[var(--c-text-3)] text-[12px]">{user.name ?? user.email}</span>
               <button
                 onClick={() => setModal('change-password')}
                 title="Change password"
@@ -181,7 +150,7 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
 
           <button
             onClick={handleSaveClick}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[14px] font-medium
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium
                        bg-[var(--c-purple-bg)] text-[var(--c-purple)] border border-[var(--c-purple-border)]
                        hover:bg-[var(--c-purple-hover)] hover:border-[var(--c-purple-2)] transition-colors"
           >
@@ -193,27 +162,25 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
         </div>
       </header>
 
+      {/* ── Modals ── */}
       {modal === 'signup' && (
         <SignUpGateModal
           onSignedUp={handleSignedUp}
           onClose={() => setModal('none')}
         />
       )}
-
       {modal === 'signin' && (
         <SignInModal
           onSignedIn={(u) => { saveUser(u); setModal('none') }}
           onClose={() => setModal('none')}
         />
       )}
-
       {modal === 'change-password' && user && (
         <ChangePasswordModal
           email={user.email}
           onClose={() => setModal('none')}
         />
       )}
-
       {modal === 'save' && user && (
         <SaveSessionModal
           config={activeTab?.config ?? { url: '', transport: 'auto' }}
@@ -221,19 +188,24 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
           tools={activeTab?.tools ?? []}
           resources={activeTab?.resources ?? []}
           prompts={activeTab?.prompts ?? []}
-          traces={activeTab?.traces ?? []}
+          traces={traces}
           userEmail={user.email}
           onClose={() => setModal('none')}
         />
       )}
 
-      {/* ── Connection bar ── */}
-      <ConnectionBar />
+      {/* ── Body: sidebar + content ── */}
+      <div className="flex flex-1 overflow-hidden">
+        <NavSidebar />
 
-      {/* ── Page content ── */}
-      <main className="flex-1 overflow-hidden">
-        {children}
-      </main>
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <ConnectionBar />
+          <main className="flex-1 overflow-hidden">
+            {children}
+          </main>
+          <Footer compact />
+        </div>
+      </div>
     </div>
   )
 }

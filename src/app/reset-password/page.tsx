@@ -1,6 +1,6 @@
 'use client'
-import Image from 'next/image'
 import { useState, useEffect, Suspense } from 'react'
+import { Logo } from '@/components/Logo'
 import { useSearchParams } from 'next/navigation'
 import { Footer } from '@/components/Footer'
 
@@ -49,7 +49,7 @@ function ResetPasswordForm() {
 
         <div className="px-6 pt-6 pb-4 border-b border-[var(--c-border)]">
           <div className="flex items-center mb-3">
-            <Image src="/logo.png" alt="Flashman AI" width={110} height={60} className="object-contain" />
+            <Logo className="text-[20px]" />
           </div>
           <h2 className="text-[17px] font-semibold text-[var(--c-text)]">Set new password</h2>
           <p className="text-[14px] text-[var(--c-text-2)] mt-0.5">Choose a new password for your account.</p>

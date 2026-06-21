@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error
 
-    return NextResponse.json({ success: true, user: data })
+    return NextResponse.json({ success: true, user: { email: data.email, name: data.name ?? undefined, plan: 'free' } })
   } catch (err: unknown) {
     console.error('[auth/signup]', err)
     const msg = err instanceof Error ? err.message : 'Sign up failed'

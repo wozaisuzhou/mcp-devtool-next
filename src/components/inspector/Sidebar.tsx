@@ -53,7 +53,7 @@ export function Sidebar() {
 
     const handleMouseMove = (e: MouseEvent) => {
       const delta = e.clientY - startYRef.current
-      
+
       if (resizingSection === 'tools-resources') {
         const newToolsHeight = Math.max(80, startHeightsRef.current.tools + delta)
         const newResourcesHeight = Math.max(80, startHeightsRef.current.resources - delta)
@@ -211,7 +211,10 @@ function Section({ title, count, countColor, height, onSearch, searchValue, chil
           />
         </div>
       )}
-      <div style={{ height: `${height}px` }} className="overflow-y-auto flex-shrink-0">{children}</div>
+      <div style={{ height: `${height}px` }} className="overflow-y-auto flex-shrink-0">
+        {children}
+        <div className="h-8 flex-shrink-0" />
+      </div>
     </div>
   )
 }

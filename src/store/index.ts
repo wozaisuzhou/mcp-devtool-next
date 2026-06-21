@@ -2,8 +2,10 @@
 import { create } from 'zustand'
 import type {
   ConnectionConfig, ServerInfo, MCPTool, MCPResource,
-  MCPPrompt, TraceEvent, ChatMessage,
+  MCPPrompt, TraceEvent, ChatMessage, RegisteredUser,
 } from '@/lib/types'
+
+const USER_STORAGE_KEY = 'flashman_user'
 
 interface TabState {
   id: string
@@ -68,6 +70,13 @@ interface AppStore {
   setSidebarWidth: (w: number) => void
   setSectionHeight: (section: 'tools' | 'resources' | 'prompts', height: number) => void
 
+  // ── Auth ───────────────────────────────────────────────────
+  user: RegisteredUser | null
+  userReady: boolean
+  initUser: () => void
+  saveUser: (u: RegisteredUser) => void
+  clearUser: () => void
+
   // ── Getters ────────────────────────────────────────────────
   getActiveTab: () => TabState | undefined
 }
@@ -95,6 +104,8 @@ export const useStore = create<AppStore>((set, get) => ({
   claudeApiKey: '',
   sidebarWidth: 256,
   sectionHeights: { tools: 150, resources: 150, prompts: 150 },
+  user: null,
+  userReady: false,
 
   // ── Tab Actions ────────────────────────────────────────────
   createTab: (name?: string) => set((s) => {
@@ -204,6 +215,27 @@ export const useStore = create<AppStore>((set, get) => ({
   setSectionHeight: (section, height) => set((s) => ({
     sectionHeights: { ...s.sectionHeights, [section]: Math.max(80, height) }
   })),
+
+  // ── Auth ───────────────────────────────────────────────────
+  initUser: () => {
+    if (get().userReady) return
+    try {
+      const raw = localStorage.getItem(USER_STORAGE_KEY)
+      set({ user: raw ? JSON.parse(raw) : null, userReady: true })
+    } catch {
+      set({ userReady: true })
+    }
+  },
+
+  saveUser: (u) => {
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(u))
+    set({ user: u })
+  },
+
+  clearUser: () => {
+    localStorage.removeItem(USER_STORAGE_KEY)
+    set({ user: null })
+  },
 
   // ── Getters ────────────────────────────────────────────────
   getActiveTab: () => {

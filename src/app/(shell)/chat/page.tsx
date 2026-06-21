@@ -127,7 +127,7 @@ export default function ChatPage() {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+      <div className="flex-1 overflow-y-auto px-6 py-5 pb-10 space-y-4">
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full text-[var(--c-text-3)] text-[15px] text-center">
             <div>

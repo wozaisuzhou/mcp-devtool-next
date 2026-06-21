@@ -63,7 +63,7 @@ export default function TracePage() {
       <div className="flex flex-1 overflow-hidden">
 
         {/* Trace list */}
-        <div className="w-80 flex-shrink-0 border-r border-[var(--c-border)] overflow-y-auto">
+        <div className="w-80 flex-shrink-0 border-r border-[var(--c-border)] overflow-y-auto pb-8">
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-[var(--c-text-3)] text-[14px] gap-2">
               <span className="text-3xl opacity-20">◎</span>
@@ -83,7 +83,7 @@ export default function TracePage() {
         </div>
 
         {/* Detail */}
-        <div className="flex-1 overflow-y-auto p-5">
+        <div className="flex-1 overflow-y-auto p-5 pb-12">
           {selected
             ? <TraceDetail trace={selected} />
             : (

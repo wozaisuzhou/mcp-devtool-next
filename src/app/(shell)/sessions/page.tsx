@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useStore } from '@/store'
+import { useRegisteredUser } from '@/hooks/useRegisteredUser'
 import type { MCPTool, MCPResource, MCPPrompt, TraceEvent } from '@/lib/types'
 
 interface SavedSession {
@@ -104,6 +105,7 @@ function DiffList({ title, diff }: { title: string; diff: DiffResult }) {
 export default function SessionsPage() {
   const router = useRouter()
   const { loadSession } = useStore()
+  const { user, ready } = useRegisteredUser()
   const [sessions, setSessions]   = useState<SavedSession[]>([])
   const [loading, setLoading]     = useState(true)
   const [compareA, setCompareA]   = useState<string>('')
@@ -116,17 +118,21 @@ export default function SessionsPage() {
   const [search, setSearch] = useState('')
 
   const fetchSessions = useCallback(async () => {
+    if (!user) return
     setLoading(true)
     try {
-      const res = await fetch('/api/sessions')
+      const url = `/api/sessions?userEmail=${encodeURIComponent(user.email)}`
+      const res = await fetch(url)
       const data = await res.json()
       setSessions(data.sessions ?? [])
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [user])
 
-  useEffect(() => { fetchSessions() }, [fetchSessions])
+  useEffect(() => {
+    if (ready) fetchSessions()
+  }, [ready, fetchSessions])
 
   async function loadFull(id: string): Promise<FullSession | null> {
     const res = await fetch(`/api/sessions/${id}`)
@@ -195,6 +201,20 @@ export default function SessionsPage() {
   const resourceDiff = fullA && fullB ? diffByUri(fullA.resources, fullB.resources) : null
   const promptDiff   = fullA && fullB ? diffByName(fullA.prompts, fullB.prompts) : null
 
+  if (!ready) return null
+
+  if (!user) {
+    return (
+      <div className="flex h-full items-center justify-center text-center text-[var(--c-text-3)]">
+        <div>
+          <p className="text-3xl mb-3 opacity-20">🔒</p>
+          <p className="text-[15px]">Sign in to view your saved sessions</p>
+          <p className="text-[13px] mt-1 opacity-60">Use the Sign in button in the top bar</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex h-full overflow-hidden">
 
@@ -217,7 +237,7 @@ export default function SessionsPage() {
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto pb-8">
           {loading && (
             <div className="p-4 text-[14px] text-[var(--c-text-3)]">Loading…</div>
           )}
@@ -303,7 +323,7 @@ export default function SessionsPage() {
       </div>
 
       {/* ── Diff / comparison panel ── */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-6 pb-16">
         {!compareA || !compareB ? (
           <div className="flex h-full items-center justify-center text-center text-[var(--c-text-3)]">
             <div>

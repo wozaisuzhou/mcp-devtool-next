@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     console.log(`[MCP Connect] Auth token provided: ${!!authToken}`)
 
     const client = new Client(
-      { name: 'flashman', version: '0.1.0' },
+      { name: 'Bubble AI', version: '0.1.0' },
       { capabilities: { tools: {}, resources: {}, prompts: {} } }
     )
 

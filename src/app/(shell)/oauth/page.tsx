@@ -135,7 +135,7 @@ export default function OAuthPage() {
   }
 
   return (
-    <div className="overflow-y-auto h-full p-6">
+    <div className="overflow-y-auto h-full p-6 pb-16">
       <p className="text-[15px] text-[var(--c-text-2)] mb-5">
         Debug the full OAuth 2.0 + PKCE flow for your MCP server. Step through each phase and inspect tokens in real time.
       </p>
