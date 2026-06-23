@@ -4,9 +4,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
-
-// Keep one MCP client alive across requests (module-level singleton)
-let mcpClient: Client | null = null
+import { getMcpClient, setMcpClient } from '../client'
 
 function buildAuthorizationHeader(url: string, authToken: string) {
   const trimmed = authToken.trim()
@@ -31,9 +29,10 @@ export async function POST(req: NextRequest) {
   const normalizedAuthToken = authToken?.trim()
 
   // Clean up any existing connection
-  if (mcpClient) {
-    try { await mcpClient.close() } catch {}
-    mcpClient = null
+  const existing = getMcpClient()
+  if (existing) {
+    try { await existing.close() } catch {}
+    setMcpClient(null)
   }
 
   try {
@@ -121,7 +120,7 @@ export async function POST(req: NextRequest) {
       await client.connect(mcpTransport)
     }
 
-    mcpClient = client
+    setMcpClient(client)
     console.log(`[MCP Connect] Client connected successfully`)
 
     // Fetch all capabilities in parallel
@@ -188,5 +187,3 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Export client for other routes to use
-export { mcpClient }

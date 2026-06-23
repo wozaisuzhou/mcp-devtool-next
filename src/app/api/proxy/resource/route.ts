@@ -1,8 +1,9 @@
 // src/app/api/proxy/resource/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { mcpClient } from '../connect/route'
+import { getMcpClient } from '../client'
 
 export async function POST(req: NextRequest) {
+  const mcpClient = getMcpClient()
   if (!mcpClient) {
     return NextResponse.json({ error: 'Not connected' }, { status: 400 })
   }
