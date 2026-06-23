@@ -6,7 +6,7 @@ export type Theme = 'dark' | 'light'
 const STORAGE_KEY = 'flashman_theme'
 
 export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>('dark')
+  const [theme, setThemeState] = useState<Theme>('light')
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as Theme | null

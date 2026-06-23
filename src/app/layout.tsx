@@ -10,7 +10,7 @@ const themeScript = `
 (function(){
   try {
     var t = localStorage.getItem('flashman_theme');
-    if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
   } catch(e) {}
 })();
 `
