@@ -73,6 +73,13 @@ export default function LandingPage() {
             <Logo className="text-[20px]" />
           </div>
           <div className="flex items-center gap-2">
+            <Link
+              href="/bugs"
+              className="px-3 py-1.5 rounded-md text-[13px] text-[var(--c-text-3)] hover:text-[var(--c-text)]
+                         hover:bg-[var(--c-bg-2)] transition-colors hidden sm:block"
+            >
+              Feedback
+            </Link>
             {ready && !user ? (
               <>
                 <button
@@ -175,6 +182,26 @@ export default function LandingPage() {
                 <p className="text-[13px] text-[var(--c-text-3)] leading-relaxed">{f.desc}</p>
               </Link>
             ))}
+
+            {/* Feedback card */}
+            <Link
+              href="/bugs"
+              className="group flex flex-col gap-3 p-5 rounded-xl border border-dashed border-[var(--c-border)]
+                         bg-[var(--c-bg-1)] hover:bg-[var(--c-bg-2)] hover:border-[var(--c-border-2)]
+                         transition-all duration-200"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="text-[20px] text-[var(--c-text-3)]">⚑</span>
+                <span className="font-semibold text-[15px] text-[var(--c-text)]">Feedback</span>
+                <svg className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-[var(--c-text-3)]"
+                     width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </div>
+              <p className="text-[13px] text-[var(--c-text-3)] leading-relaxed">
+                Found a bug or have a feature idea? Tell us — we read every submission.
+              </p>
+            </Link>
           </div>
         </div>
       </section>
