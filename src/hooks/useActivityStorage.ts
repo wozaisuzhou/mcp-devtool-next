@@ -1,5 +1,4 @@
 import { useCallback } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import type { UserActivity, ActivityFilter } from '@/lib/types'
 
 const isElectron = typeof window !== 'undefined' && (window as any).electronAPI
@@ -14,7 +13,7 @@ export function useActivityStorage(userId: string = 'default-user') {
 
       const fullActivity: UserActivity = {
         ...activity,
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         userId,
         timestamp: new Date().toISOString(),
       }

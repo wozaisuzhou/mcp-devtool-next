@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
     const client = new Client(
       { name: 'Bubble AI', version: '0.1.0' },
-      { capabilities: { tools: {}, resources: {}, prompts: {} } }
+      { capabilities: { tools: {}, resources: {}, prompts: {} } as Record<string, unknown> }
     )
 
     let mcpTransport

@@ -51,7 +51,7 @@ export function DetailPane() {
         status: res.ok ? 'success' : 'error',
         durationMs: data.durationMs ?? 0,
         timestamp: new Date().toISOString(),
-        serverId: activeTab.serverInfo?.name ?? 'unknown',
+        serverId: activeTab!.serverInfo?.name ?? 'unknown',
         source: 'inspector',
       }
       addTrace(trace)
@@ -230,7 +230,7 @@ function SchemaBlock({ schema }: { schema?: any }) {
         {required.length > 0 && (
           <div className="ml-4">
             <div><span className="text-[var(--c-text-2)]">"required":</span> {'['}</div>
-            {required.map((field, idx) => (
+            {required.map((field: string, idx: number) => (
               <div key={field} className="ml-4">
                 <span className="text-[var(--c-amber)]">"{field}"</span>
                 {idx < required.length - 1 && <span className="text-[var(--c-text-2)]">,</span>}
