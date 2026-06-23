@@ -1,15 +1,18 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+let _db: SupabaseClient | null = null
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.warn('[db] NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set')
+function getDb(): SupabaseClient {
+  if (_db) return _db
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) throw new Error('[db] NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set')
+  _db = createClient(url, key, { auth: { persistSession: false } })
+  return _db
 }
 
-// Server-side client using service role key — bypasses RLS, never expose to browser
-const db = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: { persistSession: false },
+export default new Proxy({} as SupabaseClient, {
+  get(_target, prop) {
+    return (getDb() as any)[prop]
+  },
 })
-
-export default db
