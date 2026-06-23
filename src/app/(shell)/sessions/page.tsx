@@ -172,6 +172,7 @@ export default function SessionsPage() {
       loadSession({
         sessionName: full.name,
         serverUrl: full.server_url,
+        transport: full.transport ?? undefined,
         serverInfo: full.server_name
           ? { name: full.server_name, version: full.server_version ?? '', protocolVersion: full.protocol_version ?? '' }
           : null,

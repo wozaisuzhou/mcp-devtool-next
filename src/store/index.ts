@@ -54,6 +54,7 @@ interface AppStore {
   loadSession: (params: {
     sessionName: string
     serverUrl: string
+    transport?: string
     serverInfo: ServerInfo | null
     tools: MCPTool[]
     resources: MCPResource[]
@@ -162,7 +163,7 @@ export const useStore = create<AppStore>((set, get) => ({
     ),
   })),
 
-  loadSession: ({ sessionName, serverUrl, serverInfo, tools, resources, prompts, traces }) => set((s) => ({
+  loadSession: ({ sessionName, serverUrl, transport, serverInfo, tools, resources, prompts, traces }) => set((s) => ({
     tabs: s.tabs.map((t) =>
       t.id === s.activeTabId
         ? {
@@ -171,7 +172,7 @@ export const useStore = create<AppStore>((set, get) => ({
             connecting: false,
             sessionLoaded: true,
             name: sessionName,
-            config: { ...t.config, url: serverUrl },
+            config: { ...t.config, url: serverUrl, ...(transport ? { transport: transport as any } : {}) },
             serverInfo,
             tools,
             resources,

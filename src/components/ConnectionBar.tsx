@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useStore } from '@/store'
 import type { TransportType } from '@/lib/types'
 
@@ -30,6 +30,11 @@ export function ConnectionBar() {
   const [newTabName, setNewTabName] = useState('')
   const [showNewTabDialog, setShowNewTabDialog] = useState(false)
   const [newServerName, setNewServerName] = useState('')
+
+  useEffect(() => {
+    setUrl(activeTab.config.url || '')
+    setTransport(activeTab.config.transport || 'auto')
+  }, [activeTabId, activeTab.config.url, activeTab.config.transport])
 
   const isGitHubCopilot = url.includes('githubcopilot.com')
 
