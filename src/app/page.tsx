@@ -231,14 +231,20 @@ export default function LandingPage() {
       {/* ── CTA banner ── */}
       <section className="py-20 px-6 border-t border-[var(--c-border)]">
         <div className="max-w-5xl mx-auto">
-          <div className="rounded-2xl border border-[var(--c-purple-border)] bg-[var(--c-purple-bg)] p-10 text-center"
-               style={{ background: 'linear-gradient(135deg, rgba(30,28,58,0.8) 0%, rgba(22,20,50,0.6) 100%)' }}>
-            <div className="mb-5"><Logo className="text-[36px]" /></div>
-            <h2 className="text-[26px] font-bold text-[var(--c-text)] mb-2">Ready to ship faster?</h2>
-            <p className="text-[14px] text-[var(--c-text-3)] mb-7 max-w-md mx-auto">
+          <div className="relative rounded-2xl border border-[var(--c-purple-border)] bg-[var(--c-purple-bg)] p-12 text-center overflow-hidden">
+            {/* glow orbs */}
+            <div className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full blur-3xl opacity-50"
+                 style={{ background: 'radial-gradient(circle, #7c6ff7, transparent 70%)' }} />
+            <div className="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full blur-3xl opacity-40"
+                 style={{ background: 'radial-gradient(circle, #5a54c4, transparent 70%)' }} />
+            <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-40 rounded-full blur-3xl opacity-20"
+                 style={{ background: 'radial-gradient(ellipse, #9d8fff, transparent 70%)' }} />
+            <div className="relative z-10 mb-5"><Logo className="text-[36px]" /></div>
+            <h2 className="relative z-10 text-[26px] font-bold text-[var(--c-text)] mb-2">Ready to ship faster?</h2>
+            <p className="relative z-10 text-[14px] text-[var(--c-text-3)] mb-7 max-w-md mx-auto">
               Open the inspector now — no install, no config. Connect your MCP server URL and go.
             </p>
-            <div className="flex items-center justify-center gap-3">
+            <div className="relative z-10 flex items-center justify-center gap-3">
               <Link
                 href="/inspector"
                 className="px-6 py-2.5 rounded-lg text-[15px] font-semibold
