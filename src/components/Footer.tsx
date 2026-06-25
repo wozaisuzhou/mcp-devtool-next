@@ -27,7 +27,7 @@ export function Footer({ compact = false }: { compact?: boolean }) {
             ))}
           </div>
           <p className="text-[12px] text-[var(--c-text-3)] ml-auto">
-            © {new Date().getFullYear()} Bubble AI
+            © {new Date().getFullYear()} Bubble MCP
           </p>
         </div>
       </footer>
@@ -65,7 +65,7 @@ export function Footer({ compact = false }: { compact?: boolean }) {
         {/* Bottom bar */}
         <div className="mt-8 pt-6 border-t border-[var(--c-border)] flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-[12px] text-[var(--c-text-3)]">
-            © {new Date().getFullYear()} Bubble AI. All rights reserved.
+            © {new Date().getFullYear()} Bubble MCP. All rights reserved.
           </p>
           <p className="text-[12px] text-[var(--c-text-3)]">
             Built for MCP developers.

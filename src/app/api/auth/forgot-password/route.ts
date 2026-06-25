@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
           body: JSON.stringify({
             from: fromEmail,
             to: [normalizedEmail],
-            subject: 'Reset your Bubble AI password',
+            subject: 'Reset your Bubble MCP password',
             html: `<p>Click the link below to reset your password. It expires in 1 hour.</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>If you did not request this, ignore this email.</p>`,
           }),
         })

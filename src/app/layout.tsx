@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Bubble AI',
+  title: 'Bubble MCP',
   description: 'Inspector · Chat · Trace · OAuth for MCP servers',
 }
 
