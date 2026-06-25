@@ -146,7 +146,7 @@ export const useStore = create<AppStore>((set, get) => ({
   setConnected: (info, tools, resources, prompts) => set((s) => ({
     tabs: s.tabs.map((t) =>
       t.id === s.activeTabId
-        ? { ...t, connected: true, connecting: false, serverInfo: info, tools, resources, prompts, error: null }
+        ? { ...t, connected: true, connecting: false, sessionLoaded: false, serverInfo: info, tools, resources, prompts, error: null }
         : t
     ),
   })),
