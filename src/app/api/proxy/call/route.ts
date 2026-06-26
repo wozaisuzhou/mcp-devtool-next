@@ -19,7 +19,8 @@ export async function POST(req: NextRequest) {
     const result = await mcpClient.callTool({ name: tool, arguments: input })
     const durationMs = Math.round(performance.now() - start)
 
-    return NextResponse.json({ result, durationMs, status: 'success' })
+    const status = (result as { isError?: boolean }).isError ? 'error' : 'success'
+    return NextResponse.json({ result, durationMs, status })
   } catch (err: unknown) {
     const durationMs = Math.round(performance.now() - start)
     const message = err instanceof Error ? err.message : 'Tool call failed'

@@ -83,7 +83,7 @@ export default function ChatPage() {
           input: block.input,
           output: callData.result,
           error: callData.error,
-          status: callRes.ok ? 'success' : 'error',
+          status: callRes.ok ? (callData.status ?? 'success') : 'error',
           durationMs,
           timestamp: new Date().toISOString(),
           serverId: serverInfo?.name ?? 'unknown',

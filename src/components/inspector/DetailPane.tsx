@@ -41,6 +41,7 @@ export function DetailPane() {
       })
       const data = await res.json()
 
+      const traceStatus = res.ok ? (data.status ?? 'success') : 'error'
       const trace: TraceEvent = {
         id: crypto.randomUUID(),
         tool: tool.name,
@@ -48,7 +49,7 @@ export function DetailPane() {
         input: parsed,
         output: data.result,
         error: data.error,
-        status: res.ok ? 'success' : 'error',
+        status: traceStatus,
         durationMs: data.durationMs ?? 0,
         timestamp: new Date().toISOString(),
         serverId: activeTab!.serverInfo?.name ?? 'unknown',
@@ -56,10 +57,10 @@ export function DetailPane() {
       }
       addTrace(trace)
 
-      if (res.ok) {
+      if (traceStatus === 'success') {
         setResponse({ status: 'success', data: data.result, durationMs: data.durationMs })
       } else {
-        setResponse({ status: 'error', error: data.error, durationMs: data.durationMs })
+        setResponse({ status: 'error', error: data.error, data: data.result, durationMs: data.durationMs })
       }
     }
 
@@ -162,7 +163,7 @@ export function DetailPane() {
               {response.status === 'idle'    ? 'Run a tool to see the response.' :
                response.status === 'loading' ? 'Waiting for response…' :
                response.status === 'success' ? JSON.stringify(response.data, null, 2) :
-               response.error}
+               response.data != null ? JSON.stringify(response.data, null, 2) : response.error}
             </div>
           </div>
         </div>
