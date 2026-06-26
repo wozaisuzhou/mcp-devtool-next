@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     const userEmail  = searchParams.get('userEmail')
     const limit      = Math.min(parseInt(searchParams.get('limit') || '50'), 200)
 
-    const cols = 'id, name, label, user_email, server_url, server_name, server_version, protocol_version, transport, tool_count, resource_count, prompt_count, trace_count, saved_at, team_id'
+    const cols = 'id, name, label, user_email, server_url, server_name, server_version, protocol_version, transport, tool_count, resource_count, prompt_count, trace_count, saved_at, team_id, teams(name)'
 
     // Fetch user's own sessions
     let ownQuery = db
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
     }
 
     const allSessions = [
-      ...(ownData ?? []),
+      ...(ownData ?? []).map((s: any) => ({ ...s, teamName: s.teams?.name ?? null })),
       ...teamSessions,
     ].sort((a, b) => new Date(b.saved_at).getTime() - new Date(a.saved_at).getTime())
      .slice(0, limit)

@@ -179,20 +179,37 @@ export function SaveSessionModal({
             {teams.length > 0 && (
               <div className="flex flex-col gap-1.5">
                 <label className="text-[13px] font-medium text-[var(--c-text-2)] uppercase tracking-wider">
-                  Share with team
+                  Visibility
                 </label>
-                <select
-                  value={teamId}
-                  onChange={e => setTeamId(e.target.value)}
-                  disabled={step === 'saving' || step === 'overwriting'}
-                  className="bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-lg px-3 py-2 text-[14px]
-                             text-[var(--c-text)] outline-none focus:border-[var(--c-purple-2)] transition-colors disabled:opacity-50"
-                >
-                  <option value="">Private (only me)</option>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setTeamId('')}
+                    disabled={step === 'saving' || step === 'overwriting'}
+                    className={`px-3 py-1.5 rounded-md text-[13px] font-medium border transition-colors disabled:opacity-50 ${
+                      teamId === ''
+                        ? 'bg-[var(--c-purple-bg)] text-[var(--c-purple)] border-[var(--c-purple-2)]'
+                        : 'bg-[var(--c-bg-2)] text-[var(--c-text-2)] border-[var(--c-border)] hover:border-[var(--c-border-2)]'
+                    }`}
+                  >
+                    Private
+                  </button>
                   {teams.map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setTeamId(t.id)}
+                      disabled={step === 'saving' || step === 'overwriting'}
+                      className={`px-3 py-1.5 rounded-md text-[13px] font-medium border transition-colors disabled:opacity-50 ${
+                        teamId === t.id
+                          ? 'bg-[var(--c-purple-bg)] text-[var(--c-purple)] border-[var(--c-purple-2)]'
+                          : 'bg-[var(--c-bg-2)] text-[var(--c-text-2)] border-[var(--c-border)] hover:border-[var(--c-border-2)]'
+                      }`}
+                    >
+                      {t.name}
+                    </button>
                   ))}
-                </select>
+                </div>
               </div>
             )}
 
