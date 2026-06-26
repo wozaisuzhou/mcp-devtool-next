@@ -62,6 +62,19 @@ const TEST_NAV = {
   ),
 }
 
+const TEAM_NAV = {
+  href: '/team',
+  label: 'Team',
+  icon: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  ),
+}
+
 export function NavSidebar() {
   const pathname = usePathname()
   const { getActiveTab } = useStore()
@@ -98,11 +111,11 @@ export function NavSidebar() {
         {/* Divider before Tests */}
         <div className="my-1 border-t border-[var(--c-border)]" />
 
-        {(() => {
-          const { href, label, icon } = TEST_NAV
+        {[TEST_NAV, TEAM_NAV].map(({ href, label, icon }) => {
           const active = pathname.startsWith(href)
           return (
             <Link
+              key={href}
               href={href}
               className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors
                 ${active
@@ -116,7 +129,7 @@ export function NavSidebar() {
               <span>{label}</span>
             </Link>
           )
-        })()}
+        })}
       </nav>
     </aside>
   )

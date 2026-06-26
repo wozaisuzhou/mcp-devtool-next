@@ -16,6 +16,7 @@ interface SaveSessionBody {
   prompts: MCPPrompt[]
   traces: TraceEvent[]
   overwrite?: boolean
+  teamId?: string
 }
 
 export async function POST(req: NextRequest) {
@@ -26,6 +27,7 @@ export async function POST(req: NextRequest) {
       serverUrl, serverInfo, transport,
       tools = [], resources = [], prompts = [], traces = [],
       overwrite = false,
+      teamId,
     } = body
 
     if (!name?.trim() || !serverUrl?.trim()) {
@@ -89,6 +91,7 @@ export async function POST(req: NextRequest) {
         resource_count: resources.length,
         prompt_count: prompts.length,
         trace_count: traces.length,
+        team_id: teamId ?? null,
       })
       .select('id, saved_at')
       .single()

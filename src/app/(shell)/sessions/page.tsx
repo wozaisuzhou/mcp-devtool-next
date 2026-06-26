@@ -20,6 +20,8 @@ interface SavedSession {
   prompt_count: number
   trace_count: number
   saved_at: string
+  team_id: string | null
+  teamName?: string | null
 }
 
 interface FullSession extends SavedSession {
@@ -253,18 +255,33 @@ export default function SessionsPage() {
               No sessions match "{search}"
             </div>
           )}
-          {filteredSessions.map((s) => (
+          {filteredSessions.map((s) => {
+            const isTeamSession = !!s.team_id
+            const isOwner = s.user_email === user?.email
+            const canDelete = !isTeamSession || isOwner
+
+            return (
             <div
               key={s.id}
               className="px-4 py-3 border-b border-[var(--c-bg-2)] hover:bg-[var(--c-bg-2)] group"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="text-[14px] font-medium text-[var(--c-text)] truncate">{s.name}</p>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <p className="text-[14px] font-medium text-[var(--c-text)] truncate">{s.name}</p>
+                    {isTeamSession && (
+                      <span className="text-[11px] font-medium px-1.5 py-px rounded-full bg-[var(--c-blue-bg)] text-[var(--c-blue)] whitespace-nowrap">
+                        {s.teamName ?? 'Team'}
+                      </span>
+                    )}
+                  </div>
                   {s.label && (
                     <span className="text-[12px] bg-[var(--c-purple-bg)] text-[var(--c-purple)] px-1.5 py-px rounded-full font-medium">
                       {s.label}
                     </span>
+                  )}
+                  {isTeamSession && !isOwner && (
+                    <p className="text-[11px] text-[var(--c-text-3)] mt-0.5 truncate">by {s.user_email}</p>
                   )}
                   <p className="text-[12px] text-[var(--c-text-3)] font-mono mt-1 truncate">{s.server_url}</p>
                   <div className="flex gap-2 mt-1 text-[12px] text-[var(--c-text-2)]">
@@ -284,14 +301,16 @@ export default function SessionsPage() {
                   >
                     {loadingSessionId === s.id ? '…' : 'Load'}
                   </button>
-                  <button
-                    onClick={() => deleteSession(s.id)}
-                    disabled={deletingId === s.id}
-                    className="text-[12px] text-[var(--c-text-3)] hover:text-[var(--c-red)] opacity-0 group-hover:opacity-100
-                               transition-all disabled:opacity-30"
-                  >
-                    ✕
-                  </button>
+                  {canDelete && (
+                    <button
+                      onClick={() => deleteSession(s.id)}
+                      disabled={deletingId === s.id}
+                      className="text-[12px] text-[var(--c-text-3)] hover:text-[var(--c-red)] opacity-0 group-hover:opacity-100
+                                 transition-all disabled:opacity-30"
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -319,7 +338,8 @@ export default function SessionsPage() {
                 </button>
               </div>
             </div>
-          ))}
+          )
+          })}
         </div>
       </div>
 

@@ -1,7 +1,12 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { MCPTool, MCPResource, MCPPrompt, ServerInfo, TraceEvent } from '@/lib/types'
 import type { ConnectionConfig } from '@/lib/types'
+
+interface TeamOption {
+  id: string
+  name: string
+}
 
 interface Props {
   config: ConnectionConfig
@@ -26,8 +31,17 @@ export function SaveSessionModal({
   const [label, setLabel]     = useState('')
   const [savedId, setSavedId] = useState('')
   const [errMsg, setErrMsg]   = useState('')
+  const [teams, setTeams]     = useState<TeamOption[]>([])
+  const [teamId, setTeamId]   = useState<string>('')
 
   const connected = !!serverInfo
+
+  useEffect(() => {
+    fetch(`/api/teams?userEmail=${encodeURIComponent(userEmail)}`)
+      .then(r => r.json())
+      .then(d => setTeams(d.teams ?? []))
+      .catch(() => {})
+  }, [userEmail])
 
   async function doSave(overwrite: boolean) {
     const targetStep: Step = overwrite ? 'overwriting' : 'saving'
@@ -48,6 +62,7 @@ export function SaveSessionModal({
           prompts,
           traces,
           overwrite,
+          teamId: teamId || undefined,
         }),
       })
       const data = await res.json()
@@ -75,6 +90,8 @@ export function SaveSessionModal({
     }
     await doSave(false)
   }
+
+  const sharedTeamName = teams.find(t => t.id === teamId)?.name
 
   return (
     <div
@@ -107,10 +124,12 @@ export function SaveSessionModal({
 
         {/* ── Server info pill ── */}
         {connected && serverInfo && (
-          <div className="mx-6 mt-2 flex items-center gap-2 bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-lg px-3 py-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--c-green)] flex-shrink-0" />
-            <span className="text-[14px] text-[var(--c-text)] font-medium">{serverInfo.name}</span>
-            <span className="text-[12px] text-[var(--c-text-3)] font-mono ml-auto">v{serverInfo.version}</span>
+          <div className="mx-6 mt-2 flex items-start gap-2 bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-lg px-3 py-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--c-green)] flex-shrink-0 mt-1.5" />
+            <div className="flex flex-col min-w-0">
+              <span className="text-[14px] text-[var(--c-text)] font-medium truncate">{serverInfo.name}</span>
+              <span className="text-[11px] text-[var(--c-text-3)] font-mono truncate">v{serverInfo.version}</span>
+            </div>
           </div>
         )}
         {!connected && (
@@ -123,7 +142,6 @@ export function SaveSessionModal({
         {(step === 'details' || step === 'saving' || step === 'overwriting') && (
           <form onSubmit={handleSave} className="px-6 py-5 flex flex-col gap-3">
 
-            {/* Session name */}
             <div className="flex flex-col gap-1.5">
               <label className="text-[13px] font-medium text-[var(--c-text-2)] uppercase tracking-wider">
                 Session name <span className="text-[var(--c-red)]">*</span>
@@ -141,7 +159,6 @@ export function SaveSessionModal({
               />
             </div>
 
-            {/* Label / version tag */}
             <div className="flex flex-col gap-1.5">
               <label className="text-[13px] font-medium text-[var(--c-text-2)] uppercase tracking-wider">
                 Label <span className="text-[var(--c-text-3)] normal-case font-normal">(for regression grouping)</span>
@@ -158,7 +175,27 @@ export function SaveSessionModal({
               />
             </div>
 
-            {/* Counts summary */}
+            {/* Team sharing */}
+            {teams.length > 0 && (
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[13px] font-medium text-[var(--c-text-2)] uppercase tracking-wider">
+                  Share with team
+                </label>
+                <select
+                  value={teamId}
+                  onChange={e => setTeamId(e.target.value)}
+                  disabled={step === 'saving' || step === 'overwriting'}
+                  className="bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-lg px-3 py-2 text-[14px]
+                             text-[var(--c-text)] outline-none focus:border-[var(--c-purple-2)] transition-colors disabled:opacity-50"
+                >
+                  <option value="">Private (only me)</option>
+                  {teams.map(t => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="flex gap-3 text-[13px] text-[var(--c-text-2)]">
               <span>{tools.length} tools</span>
               <span className="text-[var(--c-border)]">·</span>
@@ -228,8 +265,8 @@ export function SaveSessionModal({
               <p className="text-[14px] text-[var(--c-text-2)] mt-1">
                 Snapshot stored with {tools.length} tools, {resources.length} resources,
                 {' '}{prompts.length} prompts, and {traces.length} traces.
+                {sharedTeamName && <> Shared with <strong>{sharedTeamName}</strong>.</>}
               </p>
-              <p className="text-[12px] text-[var(--c-text-3)] font-mono mt-2">{savedId}</p>
             </div>
             <button
               onClick={onClose}

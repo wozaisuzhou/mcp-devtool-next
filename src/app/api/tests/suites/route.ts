@@ -9,15 +9,41 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'userEmail is required' }, { status: 400 })
     }
 
-    const { data, error } = await db
+    // Fetch user's own suites
+    const { data: ownData, error: ownError } = await db
       .from('test_suites')
-      .select('id, name, description, cases, created_at, updated_at')
+      .select('id, name, description, cases, created_at, updated_at, team_id, user_email')
       .eq('user_email', userEmail)
       .order('created_at', { ascending: true })
 
-    if (error) throw error
+    if (ownError) throw ownError
 
-    return NextResponse.json({ suites: data ?? [] })
+    let teamSuites: any[] = []
+
+    // Fetch suites shared by teams this user belongs to (excluding own)
+    const { data: memberships } = await db
+      .from('team_members')
+      .select('team_id, teams(name)')
+      .eq('user_email', userEmail)
+
+    const teamIds = (memberships ?? []).map((m: any) => m.team_id)
+
+    if (teamIds.length > 0) {
+      const { data: sharedData } = await db
+        .from('test_suites')
+        .select('id, name, description, cases, created_at, updated_at, team_id, user_email, teams(name)')
+        .in('team_id', teamIds)
+        .order('created_at', { ascending: true })
+
+      const ownIds = new Set((ownData ?? []).map((s: any) => s.id))
+      teamSuites = (sharedData ?? [])
+        .filter((s: any) => !ownIds.has(s.id))
+        .map((s: any) => ({ ...s, teamName: s.teams?.name ?? null }))
+    }
+
+    const allSuites = [...(ownData ?? []), ...teamSuites]
+
+    return NextResponse.json({ suites: allSuites })
   } catch (err) {
     console.error('[tests/suites GET]', err)
     return NextResponse.json({ suites: [], error: 'Database not available' })
@@ -26,7 +52,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { userEmail, name, description, cases } = await req.json()
+    const { userEmail, name, description, cases, teamId } = await req.json()
 
     if (!userEmail?.trim()) {
       return NextResponse.json({ error: 'userEmail is required' }, { status: 400 })
@@ -55,8 +81,9 @@ export async function POST(req: NextRequest) {
         name: name.trim(),
         description: description?.trim() || null,
         cases: cases ?? [],
+        team_id: teamId ?? null,
       })
-      .select('id, name, description, cases, created_at, updated_at')
+      .select('id, name, description, cases, created_at, updated_at, team_id, user_email')
       .single()
 
     if (error) throw error

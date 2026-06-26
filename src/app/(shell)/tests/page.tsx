@@ -36,7 +36,13 @@ function assertResult(output: unknown, assertion: TestCase['assertion']): 'pass'
 
 // ── DB row → TestSuite ────────────────────────────────────────────────────────
 
-function rowToSuite(row: Record<string, unknown>): TestSuite {
+interface TestSuiteEx extends TestSuite {
+  teamId?: string | null
+  teamName?: string | null
+  ownerEmail?: string | null
+}
+
+function rowToSuite(row: Record<string, unknown>): TestSuiteEx {
   return {
     id: row.id as string,
     name: row.name as string,
@@ -44,6 +50,9 @@ function rowToSuite(row: Record<string, unknown>): TestSuite {
     cases: (row.cases as TestCase[]) ?? [],
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
+    teamId: (row.team_id as string) ?? null,
+    teamName: (row.teamName as string) ?? null,
+    ownerEmail: (row.user_email as string) ?? null,
   }
 }
 
@@ -200,13 +209,19 @@ export default function TestsPage() {
 
   const limits = PLAN_LIMITS[user?.plan ?? 'free']
 
-  const [suites, setSuites] = useState<TestSuite[]>([])
+  const [suites, setSuites] = useState<TestSuiteEx[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [runningIds, setRunningIds] = useState<Set<string>>(new Set())
   const [editingName, setEditingName] = useState(false)
   const [saving, setSaving] = useState(false)
   const [limitError, setLimitError] = useState<string | null>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Team sharing
+  const [myTeams, setMyTeams] = useState<{ id: string; name: string }[]>([])
+  const [shareTarget, setShareTarget] = useState<string | null>(null) // suiteId being shared
+  const [shareTeamId, setShareTeamId] = useState('')
+  const [sharing, setSharing] = useState(false)
 
   // ── Load ──────────────────────────────────────────────────────────────────
 
@@ -215,16 +230,19 @@ export default function TestsPage() {
       fetch(`/api/tests/suites?userEmail=${encodeURIComponent(user.email)}`)
         .then(r => r.json())
         .then(({ suites: rows }) => {
-          const loaded: TestSuite[] = (rows ?? []).map(rowToSuite)
+          const loaded: TestSuiteEx[] = (rows ?? []).map(rowToSuite)
           setSuites(loaded)
           if (loaded.length > 0) setSelectedId(s => s ?? loaded[0].id)
         })
         .catch(() => {
-          // DB unavailable — fall back to localStorage
           const local = loadLocal()
           setSuites(local)
           if (local.length > 0) setSelectedId(s => s ?? local[0].id)
         })
+      fetch(`/api/teams?userEmail=${encodeURIComponent(user.email)}`)
+        .then(r => r.json())
+        .then(d => setMyTeams(d.teams ?? []))
+        .catch(() => {})
     } else {
       const local = loadLocal()
       setSuites(local)
@@ -261,6 +279,7 @@ export default function TestsPage() {
   }, [user])
 
   const selected = suites.find(s => s.id === selectedId) ?? null
+  const isReadOnly = !!selected?.teamId && selected?.ownerEmail !== user?.email
 
   // ── Suite CRUD ────────────────────────────────────────────────────────────
 
@@ -294,6 +313,26 @@ export default function TestsPage() {
       return next
     })
     if (selectedId === id) setSelectedId(suites.find(s => s.id !== id)?.id ?? null)
+  }
+
+  async function shareSuite(suiteId: string, teamId: string | null) {
+    if (!user) return
+    setSharing(true)
+    try {
+      await fetch(`/api/tests/suites/${suiteId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamId, userEmail: user.email }),
+      })
+      setSuites(prev => prev.map(s => {
+        if (s.id !== suiteId) return s
+        const team = myTeams.find(t => t.id === teamId)
+        return { ...s, teamId: teamId ?? null, teamName: team?.name ?? null }
+      }))
+      setShareTarget(null)
+    } finally {
+      setSharing(false)
+    }
   }
 
   function patchSuite(patch: Partial<TestSuite>) {
@@ -413,44 +452,79 @@ export default function TestsPage() {
               No suites yet.<br/>Click + to create one.
             </p>
           )}
-          {suites.map(s => (
+          {suites.map(s => {
+            const isTeam = !!s.teamId
+            const isOwned = s.ownerEmail === user?.email || !s.ownerEmail
+            return (
             <div key={s.id} onClick={() => setSelectedId(s.id)}
                  className={`group flex items-center gap-2 px-2.5 py-2 rounded-md cursor-pointer transition-colors
                    ${selectedId === s.id
                      ? 'bg-[var(--c-bg-3)] text-[var(--c-text)]'
                      : 'text-[var(--c-text-2)] hover:bg-[var(--c-bg-2)] hover:text-[var(--c-text)]'
                    }`}>
-              <span className="flex-1 text-[13px] truncate">{s.name}</span>
-              <span className="text-[11px] text-[var(--c-text-3)]">{s.cases.length}</span>
-              <button onClick={(e) => { e.stopPropagation(); deleteSuite(s.id) }}
-                      className="opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded
-                                 text-[var(--c-text-3)] hover:text-[var(--c-red)] hover:bg-[var(--c-red-bg)] transition-colors">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-              </button>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] truncate">{s.name}</p>
+                {isTeam && (
+                  <p className="text-[10px] text-[var(--c-blue)] truncate">{s.teamName ?? 'Team'}</p>
+                )}
+              </div>
+              <span className="text-[11px] text-[var(--c-text-3)] flex-shrink-0">{s.cases.length}</span>
+              {/* Share button — only for owned personal suites when in teams */}
+              {isOwned && myTeams.length > 0 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setShareTarget(s.id); setShareTeamId(s.teamId ?? '') }}
+                  title={isTeam ? 'Change sharing' : 'Share with team'}
+                  className={`opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded
+                             transition-colors ${isTeam ? 'text-[var(--c-blue)]' : 'text-[var(--c-text-3)] hover:text-[var(--c-purple)]'}`}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                  </svg>
+                </button>
+              )}
+              {isOwned && (
+                <button onClick={(e) => { e.stopPropagation(); deleteSuite(s.id) }}
+                        className="opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded
+                                   text-[var(--c-text-3)] hover:text-[var(--c-red)] hover:bg-[var(--c-red-bg)] transition-colors">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              )}
             </div>
-          ))}
+            )
+          })}
         </div>
       </aside>
 
       {/* ── Suite detail ── */}
       {selected ? (
         <div className="flex-1 flex flex-col overflow-hidden">
+          {isReadOnly && (
+            <div className="px-6 py-2 border-b border-[var(--c-border)] bg-[var(--c-blue-bg)] flex items-center gap-2">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--c-blue)] flex-shrink-0">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <span className="text-[12px] text-[var(--c-blue)]">
+                Shared by <strong>{selected.ownerEmail}</strong> via <strong>{selected.teamName}</strong> — read only
+              </span>
+            </div>
+          )}
           <div className="flex items-start gap-4 px-6 py-4 border-b border-[var(--c-border)] bg-[var(--c-bg-1)] flex-shrink-0">
             <div className="flex-1 flex flex-col gap-1 min-w-0">
-              {editingName ? (
+              {editingName && !isReadOnly ? (
                 <input autoFocus value={selected.name} onChange={e => patchSuite({ name: e.target.value })}
                        onBlur={() => setEditingName(false)} onKeyDown={e => e.key === 'Enter' && setEditingName(false)}
                        className="text-[18px] font-bold text-[var(--c-text)] bg-transparent border-b border-[var(--c-purple-2)] outline-none w-full"/>
               ) : (
-                <h1 onClick={() => setEditingName(true)} title="Click to rename"
-                    className="text-[18px] font-bold text-[var(--c-text)] cursor-text hover:text-[var(--c-purple)] transition-colors truncate">
+                <h1 onClick={() => !isReadOnly && setEditingName(true)} title={isReadOnly ? undefined : 'Click to rename'}
+                    className={`text-[18px] font-bold text-[var(--c-text)] truncate ${isReadOnly ? '' : 'cursor-text hover:text-[var(--c-purple)] transition-colors'}`}>
                   {selected.name}
                 </h1>
               )}
-              <input value={selected.description ?? ''} onChange={e => patchSuite({ description: e.target.value })}
-                     placeholder="Add a description…"
+              <input value={selected.description ?? ''} onChange={e => !isReadOnly && patchSuite({ description: e.target.value })}
+                     placeholder={isReadOnly ? '' : 'Add a description…'}
+                     readOnly={isReadOnly}
                      className="text-[13px] text-[var(--c-text-3)] bg-transparent outline-none placeholder:text-[var(--c-text-3)]
                                 hover:text-[var(--c-text-2)] focus:text-[var(--c-text-2)] transition-colors"/>
             </div>
@@ -462,7 +536,7 @@ export default function TestsPage() {
                   {failCount > 0 && <span className="text-[var(--c-red)]">{failCount} failed</span>}
                 </div>
               )}
-              <button onClick={addCase} disabled={caseAtLimit}
+              <button onClick={addCase} disabled={caseAtLimit || isReadOnly}
                       title={caseAtLimit ? `Limit reached (${limits.casesPerSuite} tests per suite)` : undefined}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium
                                  bg-[var(--c-bg-2)] text-[var(--c-text-2)] border border-[var(--c-border)]
@@ -526,6 +600,37 @@ export default function TestsPage() {
                                hover:bg-[var(--c-purple-hover)] transition-colors">
               New suite
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Share suite dialog ── */}
+      {shareTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+             onClick={e => e.target === e.currentTarget && setShareTarget(null)}>
+          <div className="bg-[var(--c-bg-1)] border border-[var(--c-border)] rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6 flex flex-col gap-4">
+            <h2 className="text-[16px] font-bold text-[var(--c-text)]">Share suite</h2>
+            <select
+              value={shareTeamId}
+              onChange={e => setShareTeamId(e.target.value)}
+              className="bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-lg px-3 py-2 text-[14px]
+                         text-[var(--c-text)] outline-none focus:border-[var(--c-purple-2)] transition-colors"
+            >
+              <option value="">Private (only me)</option>
+              {myTeams.map(t => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </select>
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setShareTarget(null)}
+                className="px-3 py-1.5 text-[13px] font-medium bg-[var(--c-bg-3)] text-[var(--c-text-2)] rounded-md hover:bg-[var(--c-border)] transition-colors">
+                Cancel
+              </button>
+              <button onClick={() => shareSuite(shareTarget, shareTeamId || null)} disabled={sharing}
+                className="px-3 py-1.5 text-[13px] font-semibold bg-[var(--c-purple-2)] text-white rounded-md hover:bg-[var(--c-purple)] disabled:opacity-40 transition-colors">
+                {sharing ? 'Saving…' : 'Save'}
+              </button>
+            </div>
           </div>
         </div>
       )}

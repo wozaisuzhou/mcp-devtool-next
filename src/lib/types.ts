@@ -108,6 +108,31 @@ export interface ToolCall {
   status: EventStatus
 }
 
+export interface Team {
+  id: string
+  name: string
+  ownerEmail: string
+  inviteCode?: string  // only returned to the team owner
+  createdAt: string
+}
+
+export interface TeamMember {
+  userEmail: string
+  role: 'owner' | 'member'
+  joinedAt: string
+}
+
+export interface TeamJoinRequest {
+  id: string
+  userEmail: string
+  requestedAt: string
+}
+
+export interface TeamWithMembers extends Team {
+  members: TeamMember[]
+  joinRequests?: TeamJoinRequest[]  // pending requests, only populated for owner
+}
+
 export type TestAssertionType = 'none' | 'exact' | 'contains'
 
 export interface TestAssertion {

@@ -49,6 +49,35 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
+// PATCH /api/tests/suites/[id]  — share/unshare with a team (owner only)
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const { teamId, userEmail } = await req.json()
+    if (!userEmail) return NextResponse.json({ error: 'userEmail is required' }, { status: 400 })
+
+    const { data: suite } = await db
+      .from('test_suites')
+      .select('user_email')
+      .eq('id', params.id)
+      .maybeSingle()
+
+    if (!suite) return NextResponse.json({ error: 'Suite not found' }, { status: 404 })
+    if (suite.user_email !== userEmail) return NextResponse.json({ error: 'Only the owner can share this suite' }, { status: 403 })
+
+    const { error } = await db
+      .from('test_suites')
+      .update({ team_id: teamId ?? null })
+      .eq('id', params.id)
+
+    if (error) throw error
+
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error('[tests/suites/:id PATCH]', err)
+    return NextResponse.json({ error: 'Failed to update sharing' }, { status: 500 })
+  }
+}
+
 export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { error } = await db
