@@ -37,7 +37,7 @@ export default function VisitTracker() {
     lastPath.current = pathname
 
     // Skip admin routes from self-reporting to avoid inflating counts
-    if (pathname.startsWith('/admin')) return
+    if (pathname.startsWith('/mgmt')) return
 
     const visitorId = getOrCreateVisitorId()
     const userEmail = getStoredEmail()

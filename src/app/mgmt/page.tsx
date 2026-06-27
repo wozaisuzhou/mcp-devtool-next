@@ -203,7 +203,7 @@ function TrafficTab({ adminEmail }: { adminEmail: string }) {
   const fetch_ = useCallback(async (d: number) => {
     setLoading(true)
     try {
-      const res = await fetch(`/api/admin/analytics?adminEmail=${encodeURIComponent(adminEmail)}&days=${d}`)
+      const res = await fetch(`/api/mgmt/analytics?adminEmail=${encodeURIComponent(adminEmail)}&days=${d}`)
       const data = await res.json()
       if (res.ok) {
         setSummary(data.summary)
@@ -357,7 +357,7 @@ function UsersTab({ adminEmail }: { adminEmail: string }) {
       const params = new URLSearchParams({ adminEmail })
       if (s) params.set('search', s)
       if (p) params.set('plan', p)
-      const res = await fetch(`/api/admin/users?${params}`)
+      const res = await fetch(`/api/mgmt/users?${params}`)
       const data = await res.json()
       if (res.ok) setUsers(data.users ?? [])
     } finally {
@@ -368,7 +368,7 @@ function UsersTab({ adminEmail }: { adminEmail: string }) {
   useEffect(() => { fetchUsers(search, planFilter) }, [search, planFilter, fetchUsers])
 
   async function handleSave(email: string, plan: UserPlan, el: EnterpriseLimits | null) {
-    const res = await fetch('/api/admin/users', {
+    const res = await fetch('/api/mgmt/users', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ adminEmail, email, plan, enterprise_limits: el }),
@@ -497,7 +497,7 @@ export default function AdminPage() {
   async function handleAuth(e: React.FormEvent) {
     e.preventDefault()
     setAuthError('')
-    const res = await fetch(`/api/admin/users?adminEmail=${encodeURIComponent(adminEmail)}`)
+    const res = await fetch(`/api/mgmt/users?adminEmail=${encodeURIComponent(adminEmail)}`)
     if (res.status === 403) {
       setAuthError('Access denied. Your email is not in the admin list.')
       return
