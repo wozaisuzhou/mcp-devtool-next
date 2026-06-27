@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import db from '@/lib/db'
-import { getUserPlan, PLAN_LIMITS } from '@/lib/limits'
+import { getUserPlanRow, resolveLimits } from '@/lib/limits'
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -16,8 +16,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         .eq('id', params.id)
         .maybeSingle()
       if (owner?.user_email) {
-        const plan = await getUserPlan(owner.user_email as string)
-        const caseLimit = PLAN_LIMITS[plan].casesPerSuite
+        const { plan, enterpriseLimits } = await getUserPlanRow(owner.user_email as string)
+        const caseLimit = resolveLimits(plan, enterpriseLimits).casesPerSuite
         if ((cases as unknown[]).length > caseLimit) {
           return NextResponse.json(
             { error: `Test case limit reached (${caseLimit} tests per suite for ${plan} plan).` },

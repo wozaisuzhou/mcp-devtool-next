@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import db from '@/lib/db'
-import { getUserPlan, PLAN_LIMITS } from '@/lib/limits'
+import { getUserPlanRow, resolveLimits } from '@/lib/limits'
 import type { MCPTool, MCPResource, MCPPrompt, ServerInfo, TraceEvent } from '@/lib/types'
 import type { ConnectionConfig } from '@/lib/types'
 
@@ -40,8 +40,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'serverUrl exceeds maximum length of 2048 characters' }, { status: 400 })
     }
 
-    const plan = await getUserPlan(userEmail.trim())
-    const sessionLimit = PLAN_LIMITS[plan].sessions
+    const { plan, enterpriseLimits } = await getUserPlanRow(userEmail.trim())
+    const sessionLimit = resolveLimits(plan, enterpriseLimits).sessions
     const { count } = await db
       .from('saved_sessions')
       .select('*', { count: 'exact', head: true })

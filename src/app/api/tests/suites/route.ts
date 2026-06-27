@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import db from '@/lib/db'
-import { getUserPlan, PLAN_LIMITS } from '@/lib/limits'
+import { getUserPlanRow, resolveLimits } from '@/lib/limits'
 
 export async function GET(req: NextRequest) {
   try {
@@ -85,15 +85,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'name is required' }, { status: 400 })
     }
 
-    const plan = await getUserPlan(userEmail.trim())
-    const suiteLimit = PLAN_LIMITS[plan].suites
+    const { plan, enterpriseLimits } = await getUserPlanRow(userEmail.trim())
+    const suiteLimit = resolveLimits(plan, enterpriseLimits).suites
     const { count } = await db
       .from('test_suites')
       .select('*', { count: 'exact', head: true })
       .eq('user_email', userEmail.trim())
     if ((count ?? 0) >= suiteLimit) {
       return NextResponse.json(
-        { error: `Suite limit reached (${suiteLimit} suite${suiteLimit === 1 ? '' : 's'} for ${plan} plan).` },
+        { error: `Suite limit reached (${suiteLimit} suite${suiteLimit === 1 ? '' : 's'} on your ${plan} plan).` },
         { status: 403 }
       )
     }

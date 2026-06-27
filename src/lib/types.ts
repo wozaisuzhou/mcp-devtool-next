@@ -1,16 +1,26 @@
 // src/lib/types.ts
 
-export type UserPlan = 'free' | 'paid'
+export type UserPlan = 'free' | 'silver' | 'gold' | 'enterprise'
 
-export const PLAN_LIMITS = {
-  free: { sessions: 10, suites: 1, casesPerSuite: 10 },
-  paid: { sessions: 30, suites: 20, casesPerSuite: 50 },
-} as const
+export const PLAN_LIMITS: Record<Exclude<UserPlan, 'enterprise'>, { sessions: number; suites: number; casesPerSuite: number }> = {
+  free:   { sessions: 10,  suites: 1,  casesPerSuite: 10 },
+  silver: { sessions: 30,  suites: 10, casesPerSuite: 15 },
+  gold:   { sessions: 100, suites: 30, casesPerSuite: 30 },
+}
+
+export const ENTERPRISE_DEFAULTS = { sessions: 1000, suites: 500, casesPerSuite: 500 }
+
+export interface EnterpriseLimits {
+  sessions: number
+  suites: number
+  casesPerSuite: number
+}
 
 export interface RegisteredUser {
   email: string
   name?: string
   plan?: UserPlan
+  enterprise_limits?: EnterpriseLimits | null
 }
 
 export type EventStatus = 'success' | 'error' | 'timeout'

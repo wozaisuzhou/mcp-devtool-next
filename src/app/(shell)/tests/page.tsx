@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useStore } from '@/store'
 import { useRegisteredUser } from '@/hooks/useRegisteredUser'
 import type { TestSuite, TestCase, TestResult, TestAssertionType } from '@/lib/types'
-import { PLAN_LIMITS } from '@/lib/types'
+import { PLAN_LIMITS, ENTERPRISE_DEFAULTS } from '@/lib/types'
 
 const STORAGE_KEY = 'mcp-test-suites'
 
@@ -207,7 +207,8 @@ export default function TestsPage() {
   const { user } = useRegisteredUser()
   const tools = getActiveTab()?.tools.map(t => t.name) ?? []
 
-  const limits = PLAN_LIMITS[user?.plan ?? 'free']
+  const plan = user?.plan ?? 'free'
+  const limits = plan === 'enterprise' ? ENTERPRISE_DEFAULTS : PLAN_LIMITS[plan]
 
   const [suites, setSuites] = useState<TestSuiteEx[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
