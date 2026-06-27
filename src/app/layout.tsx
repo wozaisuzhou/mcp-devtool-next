@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import VisitTracker from '@/components/VisitTracker'
 
 export const metadata: Metadata = {
   title: 'Bubble MCP',
@@ -21,7 +22,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body>{children}</body>
+      <body>
+        <VisitTracker />
+        {children}
+      </body>
     </html>
   )
 }
