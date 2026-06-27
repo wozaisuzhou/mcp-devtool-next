@@ -42,24 +42,28 @@ export async function POST(req: NextRequest) {
 
     const { plan, enterpriseLimits } = await getUserPlanRow(userEmail.trim())
     const sessionLimit = resolveLimits(plan, enterpriseLimits).sessions
-    const { count } = await db
-      .from('saved_sessions')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_email', userEmail.trim())
-    if ((count ?? 0) >= sessionLimit) {
-      return NextResponse.json(
-        { error: `Session limit reached (${sessionLimit} for ${plan} plan). Delete an existing session to free up space.` },
-        { status: 403 }
-      )
-    }
 
-    // Check for name collision scoped to this user
+    // Check for name collision scoped to this user (needed for both overwrite and limit logic)
     const { data: existing } = await db
       .from('saved_sessions')
       .select('id')
       .eq('name', name.trim())
       .eq('user_email', userEmail.trim())
       .maybeSingle()
+
+    const { count } = await db
+      .from('saved_sessions')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_email', userEmail.trim())
+    // When overwriting an existing session the net count stays the same, so
+    // subtract the slot that's about to be freed before enforcing the limit.
+    const effectiveCount = (count ?? 0) - (overwrite && existing ? 1 : 0)
+    if (effectiveCount >= sessionLimit) {
+      return NextResponse.json(
+        { error: `Session limit reached (${sessionLimit} for ${plan} plan). Delete an existing session to free up space.` },
+        { status: 403 }
+      )
+    }
 
     if (existing && !overwrite) {
       return NextResponse.json(
