@@ -38,11 +38,25 @@ const FEATURES = [
     color: 'var(--c-amber)',
   },
   {
+    icon: '◇',
+    title: 'Tests',
+    desc: 'Build automated test suites against your MCP tools. Define inputs, assert outputs, and run the full suite with one click.',
+    href: '/tests',
+    color: 'var(--c-green)',
+  },
+  {
     icon: '◆',
     title: 'OAuth',
     desc: 'Test OAuth 2.1 PKCE flows against any provider. Inspect tokens, scopes, and callback parameters at each step.',
     href: '/oauth',
     color: '#e879f9',
+  },
+  {
+    icon: '⊹',
+    title: 'Teams',
+    desc: 'Invite colleagues, share saved sessions and test suites across the team. Members see shared work automatically — no manual handoff.',
+    href: '/team',
+    color: '#22d3ee',
   },
 ]
 
@@ -201,6 +215,80 @@ export default function LandingPage() {
               <p className="text-[13px] text-[var(--c-text-3)] leading-relaxed">
                 Found a bug or have a feature idea? Tell us — we read every submission.
               </p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Teams spotlight ── */}
+      <section className="py-20 px-6 border-t border-[var(--c-border)]">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#22d3ee' }}>New — Teams</p>
+            <h2 className="text-[28px] sm:text-[32px] font-bold text-[var(--c-text)] tracking-tight">
+              Build together, not in silos
+            </h2>
+            <p className="text-[14px] text-[var(--c-text-3)] mt-3 max-w-lg mx-auto leading-relaxed">
+              Create a team, invite colleagues, and share your work instantly.
+              No more copy-pasting server states or re-running tests from scratch.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              {
+                icon: (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                ),
+                title: 'Shared sessions',
+                desc: 'Save an MCP server snapshot and share it with your team. Teammates load it in one click — no live connection needed.',
+              },
+              {
+                icon: (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11m0 0H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h4m0-4h6m0 0h4a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-4m0 0V3"/>
+                  </svg>
+                ),
+                title: 'Shared test suites',
+                desc: 'Write once, run everywhere. Share test suites with your team so everyone validates against the same tool contracts.',
+              },
+              {
+                icon: (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                  </svg>
+                ),
+                title: 'Invite & collaborate',
+                desc: 'Create a team with an invite code or direct email invite. Manage members, approve join requests, and keep your workspace organised.',
+              },
+            ].map((item) => (
+              <div key={item.title}
+                   className="flex flex-col gap-3 p-5 rounded-xl border border-[var(--c-border)] bg-[var(--c-bg-1)]">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+                     style={{ background: 'rgba(34,211,238,0.12)', color: '#22d3ee' }}>
+                  {item.icon}
+                </div>
+                <h3 className="text-[15px] font-semibold text-[var(--c-text)]">{item.title}</h3>
+                <p className="text-[13px] text-[var(--c-text-3)] leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 text-center">
+            <Link
+              href="/team"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-[14px] font-semibold transition-colors"
+              style={{ background: 'rgba(34,211,238,0.12)', color: '#22d3ee', border: '1px solid rgba(34,211,238,0.25)' }}
+            >
+              Go to Teams
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
             </Link>
           </div>
         </div>

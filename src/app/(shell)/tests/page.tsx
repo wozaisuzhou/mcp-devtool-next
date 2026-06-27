@@ -225,30 +225,32 @@ export default function TestsPage() {
 
   // ── Load ──────────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    if (user) {
-      fetch(`/api/tests/suites?userEmail=${encodeURIComponent(user.email)}`)
-        .then(r => r.json())
-        .then(({ suites: rows }) => {
-          const loaded: TestSuiteEx[] = (rows ?? []).map(rowToSuite)
-          setSuites(loaded)
-          if (loaded.length > 0) setSelectedId(s => s ?? loaded[0].id)
-        })
-        .catch(() => {
-          const local = loadLocal()
-          setSuites(local)
-          if (local.length > 0) setSelectedId(s => s ?? local[0].id)
-        })
-      fetch(`/api/teams?userEmail=${encodeURIComponent(user.email)}`)
-        .then(r => r.json())
-        .then(d => setMyTeams(d.teams ?? []))
-        .catch(() => {})
-    } else {
+  const loadSuites = useCallback(() => {
+    if (!user) {
       const local = loadLocal()
       setSuites(local)
       if (local.length > 0) setSelectedId(s => s ?? local[0].id)
+      return
     }
+    fetch(`/api/tests/suites?userEmail=${encodeURIComponent(user.email)}`)
+      .then(r => r.json())
+      .then(({ suites: rows }) => {
+        const loaded: TestSuiteEx[] = (rows ?? []).map(rowToSuite)
+        setSuites(loaded)
+        if (loaded.length > 0) setSelectedId(s => s ?? loaded[0].id)
+      })
+      .catch(() => {
+        const local = loadLocal()
+        setSuites(local)
+        if (local.length > 0) setSelectedId(s => s ?? local[0].id)
+      })
+    fetch(`/api/teams?userEmail=${encodeURIComponent(user.email)}`)
+      .then(r => r.json())
+      .then(d => setMyTeams(d.teams ?? []))
+      .catch(() => {})
   }, [user])
+
+  useEffect(() => { loadSuites() }, [loadSuites])
 
   // ── Persist ───────────────────────────────────────────────────────────────
   // Debounced so rapid edits (typing in the name/input fields) don't fire a
@@ -319,11 +321,16 @@ export default function TestsPage() {
     if (!user) return
     setSharing(true)
     try {
-      await fetch(`/api/tests/suites/${suiteId}`, {
+      const res = await fetch(`/api/tests/suites/${suiteId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ teamId, userEmail: user.email }),
       })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setLimitError(data.error ?? 'Failed to update sharing')
+        return
+      }
       setSuites(prev => prev.map(s => {
         if (s.id !== suiteId) return s
         const team = myTeams.find(t => t.id === teamId)
@@ -424,14 +431,23 @@ export default function TestsPage() {
               </svg>
             )}
           </div>
-          <button onClick={addSuite} disabled={suiteAtLimit} title={suiteAtLimit ? `Limit reached (${limits.suites} suites)` : 'New suite'}
-                  className="w-6 h-6 flex items-center justify-center rounded text-[var(--c-text-3)]
-                             hover:text-[var(--c-purple)] hover:bg-[var(--c-purple-bg)]
-                             disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-          </button>
+          <div className="flex items-center gap-0.5">
+            <button onClick={loadSuites} title="Refresh suites"
+                    className="w-6 h-6 flex items-center justify-center rounded text-[var(--c-text-3)]
+                               hover:text-[var(--c-text-2)] hover:bg-[var(--c-bg-2)] transition-colors">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/>
+              </svg>
+            </button>
+            <button onClick={addSuite} disabled={suiteAtLimit} title={suiteAtLimit ? `Limit reached (${limits.suites} suites)` : 'New suite'}
+                    className="w-6 h-6 flex items-center justify-center rounded text-[var(--c-text-3)]
+                               hover:text-[var(--c-purple)] hover:bg-[var(--c-purple-bg)]
+                               disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Limit / auth hint */}

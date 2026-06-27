@@ -20,28 +20,52 @@ export async function GET(req: NextRequest) {
 
     let teamSuites: any[] = []
 
-    // Fetch suites shared by teams this user belongs to (excluding own)
-    const { data: memberships } = await db
+    // Fetch teams this user belongs to (simple select — no join to avoid PostgREST issues)
+    const { data: memberships, error: membershipsError } = await db
       .from('team_members')
-      .select('team_id, teams(name)')
-      .eq('user_email', userEmail)
+      .select('team_id')
+      .ilike('user_email', userEmail)
+
+    if (membershipsError) console.error('[tests/suites GET] memberships query failed:', membershipsError)
 
     const teamIds = (memberships ?? []).map((m: any) => m.team_id)
 
+    // Collect all team IDs we need names for (own shared suites + member suites)
+    const ownTeamIds = (ownData ?? []).map((s: any) => s.team_id).filter(Boolean)
+    const allTeamIds = [...new Set([...teamIds, ...ownTeamIds])]
+
+    // Fetch team names in one flat query
+    let teamNameMap = new Map<string, string>()
+    if (allTeamIds.length > 0) {
+      const { data: teamRows } = await db
+        .from('teams')
+        .select('id, name')
+        .in('id', allTeamIds)
+      teamNameMap = new Map((teamRows ?? []).map((t: any) => [t.id as string, t.name as string]))
+    }
+
     if (teamIds.length > 0) {
-      const { data: sharedData } = await db
+      const { data: sharedData, error: sharedError } = await db
         .from('test_suites')
-        .select('id, name, description, cases, created_at, updated_at, team_id, user_email, teams(name)')
+        .select('id, name, description, cases, created_at, updated_at, team_id, user_email')
         .in('team_id', teamIds)
         .order('created_at', { ascending: true })
+
+      if (sharedError) console.error('[tests/suites GET] sharedData query failed:', sharedError)
 
       const ownIds = new Set((ownData ?? []).map((s: any) => s.id))
       teamSuites = (sharedData ?? [])
         .filter((s: any) => !ownIds.has(s.id))
-        .map((s: any) => ({ ...s, teamName: s.teams?.name ?? null }))
+        .map((s: any) => ({ ...s, teamName: teamNameMap.get(s.team_id) ?? null }))
     }
 
-    const allSuites = [...(ownData ?? []), ...teamSuites]
+    // Attach teamName to own suites too (so the badge shows for the owner)
+    const ownWithTeamName = (ownData ?? []).map((s: any) => ({
+      ...s,
+      teamName: s.team_id ? (teamNameMap.get(s.team_id) ?? null) : null,
+    }))
+
+    const allSuites = [...ownWithTeamName, ...teamSuites]
 
     return NextResponse.json({ suites: allSuites })
   } catch (err) {

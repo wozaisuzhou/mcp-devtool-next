@@ -62,7 +62,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       .maybeSingle()
 
     if (!suite) return NextResponse.json({ error: 'Suite not found' }, { status: 404 })
-    if (suite.user_email !== userEmail) return NextResponse.json({ error: 'Only the owner can share this suite' }, { status: 403 })
+    if (suite.user_email?.toLowerCase() !== userEmail?.toLowerCase()) return NextResponse.json({ error: 'Only the owner can share this suite' }, { status: 403 })
 
     const { error } = await db
       .from('test_suites')
