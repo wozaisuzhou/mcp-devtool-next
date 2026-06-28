@@ -47,7 +47,15 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
 
         {/* Logo */}
         <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
-          <Logo className="text-[17px]" />
+          {user?.enterprise_logo_url ? (
+            <img
+              src={user.enterprise_logo_url}
+              alt={user.enterprise_brand_name ?? 'Logo'}
+              className="h-6 max-w-[140px] object-contain"
+            />
+          ) : (
+            <Logo className="text-[17px]" />
+          )}
         </Link>
 
         {/* Connection status */}

@@ -19,8 +19,19 @@ export function useRegisteredUser() {
     fetch(`/api/auth/me?email=${encodeURIComponent(user.email)}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
-        if (data && data.plan !== user.plan) {
-          saveUser({ ...user, plan: data.plan, name: data.name ?? user.name })
+        if (!data) return
+        const changed =
+          data.plan !== user.plan ||
+          data.enterprise_logo_url !== user.enterprise_logo_url ||
+          data.enterprise_brand_name !== user.enterprise_brand_name
+        if (changed) {
+          saveUser({
+            ...user,
+            plan: data.plan,
+            name: data.name ?? user.name,
+            enterprise_logo_url: data.enterprise_logo_url,
+            enterprise_brand_name: data.enterprise_brand_name,
+          })
         }
       })
       .catch(() => {})

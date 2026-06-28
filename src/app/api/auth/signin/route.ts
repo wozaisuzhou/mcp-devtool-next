@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
     const { data: user } = await db
       .from('registered_users')
-      .select('email, name, password_hash, plan')
+      .select('email, name, password_hash, plan, enterprise_limits')
       .eq('email', normalizedEmail)
       .maybeSingle()
 
@@ -26,7 +26,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
     }
 
-    return NextResponse.json({ success: true, user: { email: user.email, name: user.name ?? undefined, plan: (user as Record<string, unknown>).plan ?? 'free' } })
+    const u = user as Record<string, unknown>
+    const el = (u.plan === 'enterprise' ? u.enterprise_limits : null) as Record<string, unknown> | null
+    return NextResponse.json({
+      success: true,
+      user: {
+        email: user.email,
+        name: user.name ?? undefined,
+        plan: u.plan ?? 'free',
+        ...(el?.logo_url   ? { enterprise_logo_url:   el.logo_url   } : {}),
+        ...(el?.brand_name ? { enterprise_brand_name: el.brand_name } : {}),
+      },
+    })
   } catch (err: unknown) {
     console.error('[auth/signin]', err)
     return NextResponse.json({ error: 'Sign in failed' }, { status: 500 })

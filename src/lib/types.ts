@@ -14,6 +14,8 @@ export interface EnterpriseLimits {
   sessions: number
   suites: number
   casesPerSuite: number
+  logo_url?: string
+  brand_name?: string
 }
 
 export interface RegisteredUser {
@@ -21,6 +23,8 @@ export interface RegisteredUser {
   name?: string
   plan?: UserPlan
   enterprise_limits?: EnterpriseLimits | null
+  enterprise_logo_url?: string
+  enterprise_brand_name?: string
 }
 
 export type EventStatus = 'success' | 'error' | 'timeout'

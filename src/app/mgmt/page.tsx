@@ -133,6 +133,30 @@ function EditModal({ user, onClose, onSave }: EditModalProps) {
                   />
                 </div>
               ))}
+              <div className="border-t border-[var(--c-border)] pt-3 mt-1 flex flex-col gap-3">
+                <p className="text-[12px] font-semibold text-[var(--c-text-2)] uppercase tracking-wider">Branding</p>
+                <div className="flex items-center justify-between gap-3">
+                  <label className="text-[13px] text-[var(--c-text-2)] w-32">Brand name</label>
+                  <input type="text" value={el.brand_name ?? ''}
+                    onChange={(e) => setEl((prev) => ({ ...prev, brand_name: e.target.value || undefined }))}
+                    placeholder="Acme Corp"
+                    className="flex-1 text-[13px] bg-[var(--c-bg)] border border-[var(--c-border)] rounded-md px-2 py-1
+                               text-[var(--c-text)] placeholder-[var(--c-text-3)] outline-none focus:border-[var(--c-purple-2)] transition-colors"
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <label className="text-[13px] text-[var(--c-text-2)] w-32">Logo URL</label>
+                  <input type="url" value={el.logo_url ?? ''}
+                    onChange={(e) => setEl((prev) => ({ ...prev, logo_url: e.target.value || undefined }))}
+                    placeholder="https://..."
+                    className="flex-1 text-[13px] bg-[var(--c-bg)] border border-[var(--c-border)] rounded-md px-2 py-1
+                               text-[var(--c-text)] placeholder-[var(--c-text-3)] outline-none focus:border-[var(--c-purple-2)] transition-colors"
+                  />
+                </div>
+                {el.logo_url && (
+                  <img src={el.logo_url} alt="preview" className="h-8 object-contain rounded border border-[var(--c-border)] p-1 bg-white" />
+                )}
+              </div>
             </div>
           </div>
         ) : (
