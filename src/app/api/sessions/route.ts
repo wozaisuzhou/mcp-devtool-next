@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     const userEmail  = searchParams.get('userEmail')
     const limit      = Math.min(parseInt(searchParams.get('limit') || '50'), 200)
 
-    const cols = 'id, name, label, user_email, server_url, server_name, server_version, protocol_version, transport, tool_count, resource_count, prompt_count, trace_count, saved_at, team_id'
+    const cols = 'id, name, label, user_email, server_url, server_name, server_version, protocol_version, transport, tool_count, resource_count, prompt_count, trace_count, saved_at, team_id, is_public'
 
     // Fetch user's own sessions
     let ownQuery = db

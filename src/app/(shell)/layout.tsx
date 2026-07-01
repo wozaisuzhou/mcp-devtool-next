@@ -9,12 +9,13 @@ import { SaveSessionModal } from '@/components/SaveSessionModal'
 import { SignUpGateModal } from '@/components/SignUpGateModal'
 import { SignInModal } from '@/components/SignInModal'
 import { ChangePasswordModal } from '@/components/ChangePasswordModal'
+import { ApiKeysModal } from '@/components/ApiKeysModal'
 import { useRegisteredUser } from '@/hooks/useRegisteredUser'
 import { Footer } from '@/components/Footer'
 import { useTheme } from '@/hooks/useTheme'
 import type { RegisteredUser } from '@/hooks/useRegisteredUser'
 
-type Modal = 'none' | 'signup' | 'signin' | 'save' | 'change-password'
+type Modal = 'none' | 'signup' | 'signin' | 'save' | 'change-password' | 'api-keys'
 
 export default function ShellLayout({ children }: { children: React.ReactNode }) {
   const [modal, setModal] = useState<Modal>('none')
@@ -131,6 +132,16 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
             <div className="flex items-center gap-1">
               <span className="text-[var(--c-text-3)] text-[12px]">{user.name ?? user.email}</span>
               <button
+                onClick={() => setModal('api-keys')}
+                title="API Keys"
+                className="w-7 h-7 flex items-center justify-center rounded-md text-[var(--c-text-3)]
+                           hover:text-[var(--c-text)] hover:bg-[var(--c-bg-2)] transition-colors"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                </svg>
+              </button>
+              <button
                 onClick={() => setModal('change-password')}
                 title="Change password"
                 className="w-7 h-7 flex items-center justify-center rounded-md text-[var(--c-text-3)]
@@ -186,6 +197,12 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
       {modal === 'change-password' && user && (
         <ChangePasswordModal
           email={user.email}
+          onClose={() => setModal('none')}
+        />
+      )}
+      {modal === 'api-keys' && user && (
+        <ApiKeysModal
+          userEmail={user.email}
           onClose={() => setModal('none')}
         />
       )}

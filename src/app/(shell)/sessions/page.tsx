@@ -4,6 +4,13 @@ import { useRouter } from 'next/navigation'
 import { useStore } from '@/store'
 import { useRegisteredUser } from '@/hooks/useRegisteredUser'
 import type { MCPTool, MCPResource, MCPPrompt, TraceEvent } from '@/lib/types'
+import { diffTools, diffByName, diffByUri, type DiffResult } from '@/lib/diff'
+
+interface Monitor {
+  id: string
+  session_id: string
+  last_status: string | null
+}
 
 interface SavedSession {
   id: string
@@ -22,6 +29,7 @@ interface SavedSession {
   saved_at: string
   team_id: string | null
   teamName?: string | null
+  is_public?: boolean
 }
 
 interface FullSession extends SavedSession {
@@ -31,37 +39,6 @@ interface FullSession extends SavedSession {
   traces: TraceEvent[]
 }
 
-interface DiffResult {
-  added: string[]
-  removed: string[]
-  changed: string[]
-}
-
-function diffByName(
-  a: Array<{ name: string }>,
-  b: Array<{ name: string }>
-): DiffResult {
-  const aNames = new Set(a.map((x) => x.name))
-  const bNames = new Set(b.map((x) => x.name))
-  return {
-    added:   [...bNames].filter((n) => !aNames.has(n)),
-    removed: [...aNames].filter((n) => !bNames.has(n)),
-    changed: [],
-  }
-}
-
-function diffByUri(
-  a: Array<{ uri: string }>,
-  b: Array<{ uri: string }>
-): DiffResult {
-  const aUris = new Set(a.map((x) => x.uri))
-  const bUris = new Set(b.map((x) => x.uri))
-  return {
-    added:   [...bUris].filter((n) => !aUris.has(n)),
-    removed: [...aUris].filter((n) => !bUris.has(n)),
-    changed: [],
-  }
-}
 
 function DiffBadge({ label, count, color }: { label: string; count: number; color: string }) {
   if (count === 0) return null
@@ -118,6 +95,9 @@ export default function SessionsPage() {
   const [deletingId, setDeletingId]   = useState<string | null>(null)
   const [loadingSessionId, setLoadingSessionId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [monitors, setMonitors] = useState<Monitor[]>([])
+  const [togglingMonitor, setTogglingMonitor] = useState<string | null>(null)
+  const [togglingPublish, setTogglingPublish] = useState<string | null>(null)
 
   const fetchSessions = useCallback(async () => {
     if (!user) return
@@ -133,8 +113,35 @@ export default function SessionsPage() {
   }, [user])
 
   useEffect(() => {
-    if (ready) fetchSessions()
-  }, [ready, fetchSessions])
+    if (!ready || !user) return
+    fetchSessions()
+    fetch(`/api/monitors?userEmail=${encodeURIComponent(user.email)}`)
+      .then(r => r.json())
+      .then(d => setMonitors(d.monitors ?? []))
+      .catch(() => {})
+  }, [ready, user, fetchSessions])
+
+  async function toggleMonitor(sessionId: string) {
+    if (!user) return
+    setTogglingMonitor(sessionId)
+    try {
+      const existing = monitors.find(m => m.session_id === sessionId)
+      if (existing) {
+        await fetch(`/api/monitors/${existing.id}?userEmail=${encodeURIComponent(user.email)}`, { method: 'DELETE' })
+        setMonitors(prev => prev.filter(m => m.id !== existing.id))
+      } else {
+        const res = await fetch('/api/monitors', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userEmail: user.email, sessionId }),
+        })
+        const data = await res.json()
+        if (data.monitor) setMonitors(prev => [...prev, data.monitor])
+      }
+    } finally {
+      setTogglingMonitor(null)
+    }
+  }
 
   async function loadFull(id: string): Promise<FullSession | null> {
     const res = await fetch(`/api/sessions/${id}`)
@@ -189,6 +196,23 @@ export default function SessionsPage() {
     }
   }
 
+  async function togglePublish(s: SavedSession) {
+    if (!user) return
+    setTogglingPublish(s.id)
+    try {
+      const res = await fetch(`/api/sessions/${s.id}/publish`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userEmail: user.email, isPublic: !s.is_public }),
+      })
+      if (res.ok) {
+        setSessions(prev => prev.map(x => x.id === s.id ? { ...x, is_public: !s.is_public } : x))
+      }
+    } finally {
+      setTogglingPublish(null)
+    }
+  }
+
   const filteredSessions = search.trim()
     ? sessions.filter((s) => {
         const q = search.toLowerCase()
@@ -200,7 +224,7 @@ export default function SessionsPage() {
       })
     : sessions
 
-  const toolDiff     = fullA && fullB ? diffByName(fullA.tools, fullB.tools) : null
+  const toolDiff     = fullA && fullB ? diffTools(fullA.tools, fullB.tools) : null
   const resourceDiff = fullA && fullB ? diffByUri(fullA.resources, fullB.resources) : null
   const promptDiff   = fullA && fullB ? diffByName(fullA.prompts, fullB.prompts) : null
 
@@ -259,6 +283,8 @@ export default function SessionsPage() {
             const isTeamSession = !!s.team_id
             const isOwner = s.user_email === user?.email
             const canDelete = !isTeamSession || isOwner
+            const monitor   = monitors.find(m => m.session_id === s.id)
+            const canPublish = isOwner && !isTeamSession
 
             return (
             <div
@@ -292,6 +318,41 @@ export default function SessionsPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 flex-shrink-0">
+                  {canPublish && (
+                    <button
+                      onClick={() => togglePublish(s)}
+                      disabled={togglingPublish === s.id}
+                      title={s.is_public ? 'Listed in directory — click to unpublish' : 'Publish to directory'}
+                      className={`w-6 h-6 flex items-center justify-center rounded transition-all disabled:opacity-40 ${
+                        s.is_public
+                          ? 'text-[var(--c-blue)] bg-[var(--c-blue-bg)]'
+                          : 'text-[var(--c-text-3)] opacity-0 group-hover:opacity-100 hover:text-[var(--c-text)] hover:bg-[var(--c-bg-2)]'
+                      }`}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="2" y1="12" x2="22" y2="12"/>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                      </svg>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => toggleMonitor(s.id)}
+                    disabled={togglingMonitor === s.id}
+                    title={monitor ? `Monitoring active${monitor.last_status === 'changed' ? ' · changes detected' : ''}` : 'Enable monitoring'}
+                    className={`w-6 h-6 flex items-center justify-center rounded transition-all disabled:opacity-40 ${
+                      monitor
+                        ? monitor.last_status === 'changed'
+                          ? 'text-[var(--c-amber)] bg-[var(--c-amber-border)]'
+                          : 'text-[var(--c-green)] bg-[var(--c-green-bg)]'
+                        : 'text-[var(--c-text-3)] opacity-0 group-hover:opacity-100 hover:text-[var(--c-text)] hover:bg-[var(--c-bg-2)]'
+                    }`}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                      <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                  </button>
                   <button
                     onClick={() => handleLoad(s)}
                     disabled={loadingSessionId === s.id}
