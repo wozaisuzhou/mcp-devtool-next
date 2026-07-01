@@ -8,65 +8,183 @@ import { Footer } from '@/components/Footer'
 import { useRegisteredUser } from '@/hooks/useRegisteredUser'
 import type { RegisteredUser } from '@/hooks/useRegisteredUser'
 
+type Modal = 'none' | 'signin' | 'signup'
+
+// ── Data ──────────────────────────────────────────────────────────────────────
+
 const FEATURES = [
   {
-    icon: '⬡',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    ),
     title: 'Inspector',
-    desc: 'Browse every tool, resource, and prompt your MCP server exposes. Call any tool with a live JSON editor and inspect structured responses.',
+    desc: 'Browse every tool, resource, and prompt your MCP server exposes. Call any tool live with a built-in JSON editor.',
     href: '/inspector',
     color: 'var(--c-purple)',
+    bg: 'rgba(124,111,247,0.10)',
   },
   {
-    icon: '◈',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+    ),
     title: 'Chat',
-    desc: 'Converse naturally with your MCP server. Test multi-turn prompts exactly as Claude would use them — no client wiring required.',
+    desc: 'Test multi-turn prompts against your MCP server exactly as Claude would use them — no wiring required.',
     href: '/chat',
     color: 'var(--c-blue)',
+    bg: 'rgba(96,165,250,0.10)',
   },
   {
-    icon: '◎',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+    ),
     title: 'Trace',
-    desc: 'Every JSON-RPC message — requests, responses, and notifications — logged and formatted in real time with full diff support.',
+    desc: 'Every JSON-RPC message logged in real time. Full diff support to spot exactly what changed between calls.',
     href: '/trace',
     color: 'var(--c-green)',
+    bg: 'rgba(52,211,153,0.10)',
   },
   {
-    icon: '⇄',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+      </svg>
+    ),
     title: 'Sessions',
-    desc: 'Save inspection snapshots and replay them later. Share exact server states with teammates without needing a live connection.',
+    desc: 'Save inspection snapshots and replay them later. Share exact server states with teammates without a live connection.',
     href: '/sessions',
     color: 'var(--c-amber)',
+    bg: 'rgba(251,191,36,0.10)',
   },
   {
-    icon: '◇',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11m0 0H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h4m0-4h6m0 0h4a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-4m0 0V3"/>
+      </svg>
+    ),
     title: 'Tests',
-    desc: 'Build automated test suites against your MCP tools. Define inputs, assert outputs, and run the full suite with one click.',
+    desc: 'Build automated test suites against your MCP tools. Define inputs, assert outputs, and run the full suite in one click.',
     href: '/tests',
     color: 'var(--c-green)',
+    bg: 'rgba(52,211,153,0.10)',
   },
   {
-    icon: '◆',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+      </svg>
+    ),
+    title: 'CI/CD Integration',
+    desc: 'Run test suites from GitHub Actions via a single API call. Generate API keys, copy the workflow YAML, done.',
+    href: '/tests',
+    color: '#f472b6',
+    bg: 'rgba(244,114,182,0.10)',
+    badge: 'New',
+  },
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+    ),
+    title: 'Performance Analytics',
+    desc: 'p50 / p95 / p99 latency per tool across saved sessions. Spot regressions instantly with side-by-side session comparison.',
+    href: '/analytics',
+    color: '#a78bfa',
+    bg: 'rgba(167,139,250,0.10)',
+    badge: 'New',
+  },
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+    ),
+    title: 'Monitoring & Alerts',
+    desc: 'Automatically reconnect to your server hourly, diff tools and schemas against the snapshot, and alert by email or webhook on change.',
+    href: '/sessions',
+    color: 'var(--c-amber)',
+    bg: 'rgba(251,191,36,0.10)',
+    badge: 'New',
+  },
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+      </svg>
+    ),
+    title: 'MCP Directory',
+    desc: 'A searchable public catalog of community MCP servers. Browse by tool, load any session as a starting point.',
+    href: '/directory',
+    color: '#34d399',
+    bg: 'rgba(52,211,153,0.10)',
+    badge: 'New',
+  },
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    ),
+    title: 'Teams',
+    desc: 'Share sessions and test suites across your team. Members access shared work automatically — no manual handoff.',
+    href: '/team',
+    color: '#22d3ee',
+    bg: 'rgba(34,211,238,0.10)',
+  },
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    ),
     title: 'OAuth',
     desc: 'Test OAuth 2.1 PKCE flows against any provider. Inspect tokens, scopes, and callback parameters at each step.',
     href: '/oauth',
     color: '#e879f9',
+    bg: 'rgba(232,121,249,0.10)',
   },
   {
-    icon: '⊹',
-    title: 'Teams',
-    desc: 'Invite colleagues, share saved sessions and test suites across the team. Members see shared work automatically — no manual handoff.',
-    href: '/team',
-    color: '#22d3ee',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    ),
+    title: 'Enterprise',
+    desc: 'Custom branding, higher limits, webhook alerts, and dedicated support for teams running MCP in production.',
+    href: '/inspector',
+    color: '#fbbf24',
+    bg: 'rgba(251,191,36,0.10)',
   },
 ]
 
-const STEPS = [
-  { n: '01', title: 'Connect', desc: 'Paste your MCP server URL. Supports SSE, WebSocket, and Streamable HTTP.' },
-  { n: '02', title: 'Explore', desc: 'Browse tools, resources, and prompts — call them live with a built-in editor.' },
-  { n: '03', title: 'Debug', desc: 'Trace every message, save sessions, and share snapshots with your team.' },
-]
+// ── Components ─────────────────────────────────────────────────────────────────
 
-type Modal = 'none' | 'signin' | 'signup'
+function SectionLabel({ children, color = 'var(--c-purple)' }: { children: string; color?: string }) {
+  return (
+    <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color }}>
+      {children}
+    </p>
+  )
+}
+
+function Arrow() {
+  return (
+    <svg className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-[var(--c-text-3)]"
+         width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+    </svg>
+  )
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
   const [modal, setModal] = useState<Modal>('none')
@@ -82,44 +200,39 @@ export default function LandingPage() {
 
       {/* ── Navbar ── */}
       <header className="sticky top-0 z-40 border-b border-[var(--c-border)] bg-[var(--c-bg-base)]/90 backdrop-blur-md">
-        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center">
-            <Logo className="text-[20px]" />
-          </div>
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
+          <Logo className="text-[20px]" />
+
+          <nav className="hidden md:flex items-center gap-1">
+            {[
+              { href: '/directory', label: 'Directory' },
+              { href: '/analytics', label: 'Analytics' },
+              { href: '/bugs',      label: 'Feedback' },
+            ].map(({ href, label }) => (
+              <Link key={href} href={href}
+                className="px-3 py-1.5 rounded-md text-[13px] text-[var(--c-text-3)] hover:text-[var(--c-text)] hover:bg-[var(--c-bg-2)] transition-colors">
+                {label}
+              </Link>
+            ))}
+          </nav>
+
           <div className="flex items-center gap-2">
-            <Link
-              href="/bugs"
-              className="px-3 py-1.5 rounded-md text-[13px] text-[var(--c-text-3)] hover:text-[var(--c-text)]
-                         hover:bg-[var(--c-bg-2)] transition-colors hidden sm:block"
-            >
-              Feedback
-            </Link>
             {ready && !user ? (
               <>
-                <button
-                  onClick={() => setModal('signin')}
-                  className="px-3 py-1.5 rounded-md text-[14px] font-medium
-                             text-[var(--c-text-2)] hover:text-[var(--c-text)] hover:bg-[var(--c-bg-2)] transition-colors"
-                >
+                <button onClick={() => setModal('signin')}
+                  className="px-3 py-1.5 rounded-md text-[14px] font-medium text-[var(--c-text-2)] hover:text-[var(--c-text)] hover:bg-[var(--c-bg-2)] transition-colors">
                   Sign in
                 </button>
-                <button
-                  onClick={() => setModal('signup')}
-                  className="px-3 py-1.5 rounded-md text-[14px] font-medium
-                             bg-[var(--c-purple-bg)] text-[var(--c-purple)] border border-[var(--c-purple-border)]
-                             hover:bg-[var(--c-purple-hover)] transition-colors"
-                >
-                  Sign up
+                <button onClick={() => setModal('signup')}
+                  className="px-3 py-1.5 rounded-md text-[14px] font-medium bg-[var(--c-bg-2)] text-[var(--c-text)] border border-[var(--c-border)] hover:bg-[var(--c-bg-3)] transition-colors">
+                  Sign up free
                 </button>
               </>
             ) : ready && user ? (
-              <span className="text-[13px] text-[var(--c-text-3)]">{user.name ?? user.email}</span>
+              <span className="text-[13px] text-[var(--c-text-3)] hidden sm:block">{user.name ?? user.email}</span>
             ) : null}
-            <Link
-              href="/inspector"
-              className="px-3 py-1.5 rounded-md text-[14px] font-semibold
-                         bg-[var(--c-purple-2)] text-white hover:bg-[var(--c-purple)] transition-colors"
-            >
+            <Link href="/inspector"
+              className="px-3 py-1.5 rounded-md text-[14px] font-semibold bg-[var(--c-purple-2)] text-white hover:bg-[var(--c-purple)] transition-colors">
               Open app →
             </Link>
           </div>
@@ -127,228 +240,304 @@ export default function LandingPage() {
       </header>
 
       {/* ── Hero ── */}
-      <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-24 relative overflow-hidden">
-        {/* Subtle radial glow */}
+      <section className="relative flex flex-col items-center justify-center text-center px-6 py-28 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none"
-             style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 30%, rgba(124,111,247,0.10) 0%, transparent 70%)' }} />
+             style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(124,111,247,0.12) 0%, transparent 70%)' }} />
 
-        <div className="relative flex flex-col items-center gap-6 max-w-2xl">
-          <Logo className="text-[60px]" />
+        <div className="relative flex flex-col items-center gap-5 max-w-3xl">
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--c-purple-border)] bg-[var(--c-purple-bg)] text-[12px] font-medium text-[var(--c-purple)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--c-purple-2)]" />
+            CI/CD · Analytics · Monitoring · Directory — all new
+          </div>
 
-          <p className="text-[15px] text-[var(--c-text-3)] leading-relaxed max-w-[480px]">
-            The complete developer toolkit for building, testing, and debugging
-            Model Context Protocol servers — inspector, chat, tracer, and more.
+          <h1 className="text-[40px] sm:text-[52px] font-bold text-[var(--c-text)] tracking-tight leading-[1.1]">
+            The professional toolkit<br className="hidden sm:block" /> for MCP server development
+          </h1>
+
+          <p className="text-[16px] text-[var(--c-text-3)] leading-relaxed max-w-[560px]">
+            Inspect, test, trace, and monitor your Model Context Protocol servers —
+            from local dev to production. Built for teams who ship.
           </p>
 
-          <div className="flex items-center gap-3 mt-2">
-            <Link
-              href="/inspector"
-              className="px-5 py-2.5 rounded-lg text-[15px] font-semibold
-                         bg-[var(--c-purple-2)] text-white hover:bg-[var(--c-purple)] transition-colors
-                         flex items-center gap-2"
-            >
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-2">
+            <Link href="/inspector"
+              className="px-6 py-3 rounded-lg text-[15px] font-semibold bg-[var(--c-purple-2)] text-white hover:bg-[var(--c-purple)] transition-colors flex items-center gap-2">
               Open Inspector
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </Link>
-            {ready && !user && (
-              <button
-                onClick={() => setModal('signup')}
-                className="px-5 py-2.5 rounded-lg text-[15px] font-medium
-                           bg-[var(--c-bg-2)] text-[var(--c-text-2)] border border-[var(--c-border)]
-                           hover:bg-[var(--c-bg-3)] hover:text-[var(--c-text)] transition-colors"
-              >
-                Sign up free
-              </button>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Features ── */}
-      <section className="py-20 px-6 border-t border-[var(--c-border)]">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--c-purple)] mb-3">Features</p>
-            <h2 className="text-[28px] sm:text-[32px] font-bold text-[var(--c-text)] tracking-tight">
-              Everything you need to ship MCP servers
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {FEATURES.map((f) => (
-              <Link
-                key={f.href}
-                href={f.href}
-                className="group flex flex-col gap-3 p-5 rounded-xl border border-[var(--c-border)]
-                           bg-[var(--c-bg-1)] hover:bg-[var(--c-bg-2)] hover:border-[var(--c-border-2)]
-                           transition-all duration-200"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="text-[20px]" style={{ color: f.color }}>{f.icon}</span>
-                  <span className="font-semibold text-[15px] text-[var(--c-text)]">{f.title}</span>
-                  <svg className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-[var(--c-text-3)]"
-                       width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                  </svg>
-                </div>
-                <p className="text-[13px] text-[var(--c-text-3)] leading-relaxed">{f.desc}</p>
-              </Link>
-            ))}
-
-            {/* Feedback card */}
-            <Link
-              href="/bugs"
-              className="group flex flex-col gap-3 p-5 rounded-xl border border-dashed border-[var(--c-border)]
-                         bg-[var(--c-bg-1)] hover:bg-[var(--c-bg-2)] hover:border-[var(--c-border-2)]
-                         transition-all duration-200"
-            >
-              <div className="flex items-center gap-2.5">
-                <span className="text-[20px] text-[var(--c-text-3)]">⚑</span>
-                <span className="font-semibold text-[15px] text-[var(--c-text)]">Feedback</span>
-                <svg className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-[var(--c-text-3)]"
-                     width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-              </div>
-              <p className="text-[13px] text-[var(--c-text-3)] leading-relaxed">
-                Found a bug or have a feature idea? Tell us — we read every submission.
-              </p>
+            <Link href="/directory"
+              className="px-6 py-3 rounded-lg text-[15px] font-medium bg-[var(--c-bg-2)] text-[var(--c-text-2)] border border-[var(--c-border)] hover:bg-[var(--c-bg-3)] hover:text-[var(--c-text)] transition-colors">
+              Browse MCP Directory
             </Link>
           </div>
+
+          {/* Stats row */}
+          <div className="flex flex-wrap items-center justify-center gap-6 mt-6 text-center">
+            {[
+              { value: '4', label: 'transports supported' },
+              { value: 'p99', label: 'latency tracking' },
+              { value: 'Free', label: 'to start' },
+            ].map(({ value, label }) => (
+              <div key={label} className="flex flex-col gap-0.5">
+                <span className="text-[22px] font-bold text-[var(--c-text)]">{value}</span>
+                <span className="text-[12px] text-[var(--c-text-3)]">{label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ── Teams spotlight ── */}
+      {/* ── Features grid ── */}
       <section className="py-20 px-6 border-t border-[var(--c-border)]">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#22d3ee' }}>New — Teams</p>
-            <h2 className="text-[28px] sm:text-[32px] font-bold text-[var(--c-text)] tracking-tight">
-              Build together, not in silos
+            <SectionLabel>Features</SectionLabel>
+            <h2 className="text-[30px] sm:text-[36px] font-bold text-[var(--c-text)] tracking-tight">
+              Everything from dev to production
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {FEATURES.map((f) => (
+              <Link key={f.title} href={f.href}
+                className="group relative flex flex-col gap-3 p-5 rounded-xl border border-[var(--c-border)]
+                           bg-[var(--c-bg-1)] hover:bg-[var(--c-bg-2)] hover:border-[var(--c-border-2)] transition-all duration-200">
+                {f.badge && (
+                  <span className="absolute top-3 right-3 text-[10px] font-bold px-1.5 py-px rounded-full"
+                    style={{ background: f.bg, color: f.color }}>
+                    {f.badge}
+                  </span>
+                )}
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                     style={{ background: f.bg, color: f.color }}>
+                  {f.icon}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold text-[14px] text-[var(--c-text)]">{f.title}</span>
+                    <Arrow />
+                  </div>
+                  <p className="text-[12px] text-[var(--c-text-3)] leading-relaxed">{f.desc}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CI/CD spotlight ── */}
+      <section className="py-20 px-6 border-t border-[var(--c-border)]">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <SectionLabel color="#f472b6">CI/CD Integration</SectionLabel>
+              <h2 className="text-[28px] sm:text-[34px] font-bold text-[var(--c-text)] tracking-tight leading-tight mb-4">
+                Ship with confidence.<br />Catch regressions before they reach prod.
+              </h2>
+              <p className="text-[14px] text-[var(--c-text-3)] leading-relaxed mb-6">
+                Build test suites in the UI, generate an API key, and drop one workflow file into your repo.
+                Every push runs your MCP tests automatically — no separate test framework needed.
+              </p>
+              <ul className="flex flex-col gap-2.5 mb-8">
+                {[
+                  'API key auth — generate in one click, revoke anytime',
+                  'GitHub Actions YAML auto-generated with your suite ID',
+                  'Returns structured JSON — pass/fail/error per test case',
+                  'Fails the build if any assertion or tool call errors',
+                ].map(item => (
+                  <li key={item} className="flex items-start gap-2.5 text-[13px] text-[var(--c-text-2)]">
+                    <svg className="flex-shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f472b6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/tests"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-[14px] font-semibold transition-colors"
+                style={{ background: 'rgba(244,114,182,0.12)', color: '#f472b6', border: '1px solid rgba(244,114,182,0.25)' }}>
+                Set up CI/CD
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </Link>
+            </div>
+
+            {/* Code snippet */}
+            <div className="rounded-xl border border-[var(--c-border)] bg-[var(--c-bg-1)] overflow-hidden">
+              <div className="flex items-center gap-1.5 px-4 py-3 border-b border-[var(--c-border)] bg-[var(--c-bg-2)]">
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-red)]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-amber)]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-green)]" />
+                <span className="ml-2 text-[12px] text-[var(--c-text-3)] font-mono">.github/workflows/mcp-tests.yml</span>
+              </div>
+              <pre className="p-5 text-[12px] font-mono text-[var(--c-text-2)] overflow-x-auto leading-relaxed">{`name: MCP Regression Tests
+on: [push, pull_request]
+jobs:
+  mcp-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run MCP test suite
+        run: |
+          result=$(curl -s -X POST \\
+            -H "Authorization: Bearer \\
+                \${{ secrets.MCP_API_KEY }}" \\
+            -d '{"serverUrl":
+                "\${{ vars.MCP_SERVER_URL }}"}' \\
+            https://your-app.com/api/v1/ \\
+            test-suites/SUITE_ID/run)
+
+          failed=$(echo "$result" | \\
+            jq '.failed + .errors')
+          if [ "$failed" -gt "0" ]; then
+            exit 1
+          fi`}</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Analytics + Monitoring ── */}
+      <section className="py-20 px-6 border-t border-[var(--c-border)]">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <SectionLabel color="#a78bfa">Observability</SectionLabel>
+            <h2 className="text-[28px] sm:text-[34px] font-bold text-[var(--c-text)] tracking-tight">
+              Know your server inside out
             </h2>
             <p className="text-[14px] text-[var(--c-text-3)] mt-3 max-w-lg mx-auto leading-relaxed">
-              Create a team, invite colleagues, and share your work instantly.
-              No more copy-pasting server states or re-running tests from scratch.
+              From latency percentiles to schema drift — stay ahead of problems before your users notice them.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              {
-                icon: (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
-                  </svg>
-                ),
-                title: 'Shared sessions',
-                desc: 'Save an MCP server snapshot and share it with your team. Teammates load it in one click — no live connection needed.',
-              },
-              {
-                icon: (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11m0 0H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h4m0-4h6m0 0h4a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-4m0 0V3"/>
-                  </svg>
-                ),
-                title: 'Shared test suites',
-                desc: 'Write once, run everywhere. Share test suites with your team so everyone validates against the same tool contracts.',
-              },
-              {
-                icon: (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-                  </svg>
-                ),
-                title: 'Invite & collaborate',
-                desc: 'Create a team with an invite code or direct email invite. Manage members, approve join requests, and keep your workspace organised.',
-              },
-            ].map((item) => (
-              <div key={item.title}
-                   className="flex flex-col gap-3 p-5 rounded-xl border border-[var(--c-border)] bg-[var(--c-bg-1)]">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-                     style={{ background: 'rgba(34,211,238,0.12)', color: '#22d3ee' }}>
-                  {item.icon}
-                </div>
-                <h3 className="text-[15px] font-semibold text-[var(--c-text)]">{item.title}</h3>
-                <p className="text-[13px] text-[var(--c-text-3)] leading-relaxed">{item.desc}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Analytics card */}
+            <div className="flex flex-col gap-4 p-6 rounded-xl border border-[var(--c-border)] bg-[var(--c-bg-1)]">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center"
+                   style={{ background: 'rgba(167,139,250,0.12)', color: '#a78bfa' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
               </div>
-            ))}
-          </div>
+              <div>
+                <h3 className="text-[16px] font-semibold text-[var(--c-text)] mb-1">Performance Analytics</h3>
+                <p className="text-[13px] text-[var(--c-text-3)] leading-relaxed">
+                  p50 / p95 / p99 latency per tool across all your saved sessions. Sortable table, color-coded latency,
+                  and a regression tab that compares two sessions side-by-side.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 mt-auto">
+                {[
+                  { tool: 'search_web',    p99: '312ms', bar: 30  },
+                  { tool: 'read_file',     p99: '840ms', bar: 75  },
+                  { tool: 'run_terminal',  p99: '1.2s',  bar: 100 },
+                ].map(r => (
+                  <div key={r.tool} className="flex items-center gap-3">
+                    <span className="text-[11px] font-mono text-[var(--c-text-3)] w-28 truncate">{r.tool}</span>
+                    <div className="flex-1 h-1.5 bg-[var(--c-bg-3)] rounded-full overflow-hidden">
+                      <div className="h-full rounded-full bg-[var(--c-purple-2)]" style={{ width: `${r.bar}%` }} />
+                    </div>
+                    <span className="text-[11px] font-mono text-[var(--c-text-2)] w-10 text-right">{r.p99}</span>
+                  </div>
+                ))}
+              </div>
+              <Link href="/analytics"
+                className="text-[13px] font-semibold text-[#a78bfa] hover:underline flex items-center gap-1 mt-1">
+                View analytics →
+              </Link>
+            </div>
 
-          <div className="mt-8 text-center">
-            <Link
-              href="/team"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-[14px] font-semibold transition-colors"
-              style={{ background: 'rgba(34,211,238,0.12)', color: '#22d3ee', border: '1px solid rgba(34,211,238,0.25)' }}
-            >
-              Go to Teams
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
-            </Link>
+            {/* Monitoring card */}
+            <div className="flex flex-col gap-4 p-6 rounded-xl border border-[var(--c-border)] bg-[var(--c-bg-1)]">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center"
+                   style={{ background: 'rgba(251,191,36,0.12)', color: 'var(--c-amber)' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-[16px] font-semibold text-[var(--c-text)] mb-1">Monitoring & Alerts</h3>
+                <p className="text-[13px] text-[var(--c-text-3)] leading-relaxed">
+                  Enable monitoring on any saved session with one click. We reconnect hourly, diff the live tool list
+                  and schemas against your snapshot, and alert you the moment anything changes.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2.5 mt-auto">
+                {[
+                  { label: 'Tool added',      detail: 'create_issue · just now',    color: 'var(--c-green)' },
+                  { label: 'Schema changed',  detail: 'search_web input · 2h ago',  color: 'var(--c-amber)' },
+                  { label: 'Tool removed',    detail: 'delete_file · yesterday',    color: 'var(--c-red)'   },
+                ].map(r => (
+                  <div key={r.label} className="flex items-start gap-2.5 px-3 py-2 rounded-lg bg-[var(--c-bg-2)] border border-[var(--c-border)]">
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5" style={{ background: r.color }} />
+                    <div>
+                      <p className="text-[12px] font-semibold text-[var(--c-text)]">{r.label}</p>
+                      <p className="text-[11px] text-[var(--c-text-3)] font-mono">{r.detail}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Link href="/sessions"
+                className="text-[13px] font-semibold text-[var(--c-amber)] hover:underline flex items-center gap-1 mt-1">
+                Enable monitoring →
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── How it works ── */}
+      {/* ── Directory ── */}
       <section className="py-20 px-6 border-t border-[var(--c-border)]">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--c-purple)] mb-3">Workflow</p>
-            <h2 className="text-[28px] sm:text-[32px] font-bold text-[var(--c-text)] tracking-tight">
-              Up and running in seconds
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {STEPS.map((s) => (
-              <div key={s.n} className="flex flex-col gap-3 p-6 rounded-xl border border-[var(--c-border)] bg-[var(--c-bg-1)]">
-                <span className="text-[13px] font-mono font-bold text-[var(--c-purple-2)]">{s.n}</span>
-                <h3 className="text-[17px] font-semibold text-[var(--c-text)]">{s.title}</h3>
-                <p className="text-[13px] text-[var(--c-text-3)] leading-relaxed">{s.desc}</p>
-              </div>
-            ))}
-          </div>
+        <div className="max-w-6xl mx-auto text-center">
+          <SectionLabel color="#34d399">MCP Directory</SectionLabel>
+          <h2 className="text-[28px] sm:text-[34px] font-bold text-[var(--c-text)] tracking-tight mb-3">
+            Discover community MCP servers
+          </h2>
+          <p className="text-[14px] text-[var(--c-text-3)] max-w-lg mx-auto leading-relaxed mb-8">
+            Browse public sessions shared by the community. Search by server name, tool, or description.
+            Load any entry as a starting point — then save and extend it as your own.
+          </p>
+          <Link href="/directory"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-[14px] font-semibold transition-colors"
+            style={{ background: 'rgba(52,211,153,0.12)', color: '#34d399', border: '1px solid rgba(52,211,153,0.25)' }}>
+            Browse the Directory
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </Link>
         </div>
       </section>
 
-      {/* ── CTA banner ── */}
+      {/* ── CTA ── */}
       <section className="py-20 px-6 border-t border-[var(--c-border)]">
-        <div className="max-w-5xl mx-auto">
-          <div className="relative rounded-2xl border border-[var(--c-purple-border)] bg-[var(--c-purple-bg)] p-12 text-center overflow-hidden">
-            {/* glow orbs */}
+        <div className="max-w-6xl mx-auto">
+          <div className="relative rounded-2xl border border-[var(--c-purple-border)] bg-[var(--c-purple-bg)] px-8 py-16 text-center overflow-hidden">
             <div className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full blur-3xl opacity-50"
                  style={{ background: 'radial-gradient(circle, #7c6ff7, transparent 70%)' }} />
             <div className="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full blur-3xl opacity-40"
                  style={{ background: 'radial-gradient(circle, #5a54c4, transparent 70%)' }} />
-            <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-40 rounded-full blur-3xl opacity-20"
-                 style={{ background: 'radial-gradient(ellipse, #9d8fff, transparent 70%)' }} />
-            <div className="relative z-10 mb-5"><Logo className="text-[36px]" /></div>
-            <h2 className="relative z-10 text-[26px] font-bold text-[var(--c-text)] mb-2">Ready to ship faster?</h2>
-            <p className="relative z-10 text-[14px] text-[var(--c-text-3)] mb-7 max-w-md mx-auto">
-              Open the inspector now — no install, no config. Connect your MCP server URL and go.
-            </p>
-            <div className="relative z-10 flex items-center justify-center gap-3">
-              <Link
-                href="/inspector"
-                className="px-6 py-2.5 rounded-lg text-[15px] font-semibold
-                           bg-[var(--c-purple-2)] text-white hover:bg-[var(--c-purple)] transition-colors"
-              >
-                Open Inspector →
-              </Link>
-              {ready && !user && (
-                <button
-                  onClick={() => setModal('signup')}
-                  className="px-6 py-2.5 rounded-lg text-[15px] font-medium text-[var(--c-purple)]
-                             border border-[var(--c-purple-border)] hover:bg-[var(--c-purple-hover)] transition-colors"
-                >
-                  Create free account
-                </button>
-              )}
+
+            <div className="relative z-10">
+              <h2 className="text-[28px] sm:text-[34px] font-bold text-[var(--c-text)] mb-3 tracking-tight">
+                Ready to ship better MCP servers?
+              </h2>
+              <p className="text-[14px] text-[var(--c-text-3)] mb-8 max-w-md mx-auto leading-relaxed">
+                No install, no config. Paste your server URL and start inspecting in seconds.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <Link href="/inspector"
+                  className="px-6 py-3 rounded-lg text-[15px] font-semibold bg-[var(--c-purple-2)] text-white hover:bg-[var(--c-purple)] transition-colors">
+                  Open Inspector →
+                </Link>
+                {ready && !user && (
+                  <button onClick={() => setModal('signup')}
+                    className="px-6 py-3 rounded-lg text-[15px] font-medium text-[var(--c-purple)] border border-[var(--c-purple-border)] hover:bg-[var(--c-purple-hover)] transition-colors">
+                    Create free account
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -357,16 +546,10 @@ export default function LandingPage() {
       <Footer />
 
       {modal === 'signin' && (
-        <SignInModal
-          onSignedIn={handleSignedIn}
-          onClose={() => setModal('none')}
-        />
+        <SignInModal onSignedIn={handleSignedIn} onClose={() => setModal('none')} />
       )}
       {modal === 'signup' && (
-        <SignUpGateModal
-          onSignedUp={handleSignedIn}
-          onClose={() => setModal('none')}
-        />
+        <SignUpGateModal onSignedUp={handleSignedIn} onClose={() => setModal('none')} />
       )}
     </div>
   )
