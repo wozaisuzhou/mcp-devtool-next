@@ -1,0 +1,16 @@
+name: MCP Monitor Checks
+
+on:
+  schedule:
+    - cron: '0 * * * *'   # every hour
+  workflow_dispatch:        # allow manual trigger
+
+jobs:
+  run-monitors:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping monitor cron endpoint
+        run: |
+          curl -s -f -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ vars.APP_URL }}/api/cron/monitors"
