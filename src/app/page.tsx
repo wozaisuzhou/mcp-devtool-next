@@ -271,12 +271,15 @@ export default function LandingPage() {
               className="px-6 py-3 rounded-lg text-[15px] font-medium bg-[var(--c-bg-2)] text-[var(--c-text-2)] border border-[var(--c-border)] hover:bg-[var(--c-bg-3)] hover:text-[var(--c-text)] transition-colors">
               Browse MCP Directory
             </Link>
-            <a href="/Bubble%20MCP-1.0.0-arm64.dmg" download
-              className="px-6 py-3 rounded-lg text-[15px] font-medium bg-[var(--c-bg-2)] text-[var(--c-text-2)] border border-[var(--c-border)] hover:bg-[var(--c-bg-3)] hover:text-[var(--c-text)] transition-colors flex items-center gap-2">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+            <a href="https://dusyyu9jj2i4zwio.public.blob.vercel-storage.com/Bubble%20MCP-1.0.0-arm64.dmg" download
+              className="group px-5 py-2.5 rounded-lg bg-[var(--c-bg-2)] text-[var(--c-text-2)] border border-[var(--c-border)] hover:bg-[var(--c-bg-3)] hover:text-[var(--c-text)] transition-colors flex items-center gap-3">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
+                <path d="M16.365 1.43c0 1.14-.415 2.06-1.245 2.76-.83.7-1.83 1.09-3 1.02-.06-1.11.42-2.08 1.24-2.78.82-.7 1.87-1.09 3.005-1v0zM20.6 17.14c-.42.99-.92 1.94-1.5 2.85-.79 1.22-1.44 2.06-1.94 2.52-.77.75-1.6 1.14-2.49 1.16-.64.02-1.4-.18-2.29-.6-.9-.42-1.72-.62-2.48-.62-.79 0-1.63.2-2.53.62-.9.42-1.62.64-2.16.66-.85.04-1.7-.36-2.55-1.19-.55-.5-1.23-1.37-2.05-2.62-.88-1.34-1.6-2.9-2.17-4.68C.16 13.15 0 11.4 0 9.72c0-1.92.42-3.58 1.25-4.98.65-1.12 1.52-2 2.61-2.65 1.09-.65 2.27-.98 3.54-1.01.68 0 1.57.21 2.68.63.9.34 1.5.5 1.79.5.22 0 .89-.19 2-.57 1.09-.36 2.01-.51 2.76-.45 2.04.16 3.57.96 4.6 2.4-1.83 1.1-2.73 2.65-2.72 4.63.01 1.54.57 2.83 1.65 3.84.5.47 1.05.83 1.67 1.09-.13.4-.28.78-.43 1.16z"/>
               </svg>
-              Download for Mac
+              <span className="flex flex-col items-start leading-tight">
+                <span className="text-[15px] font-medium">Download for Mac</span>
+                <span className="text-[11px] text-[var(--c-text-3)] group-hover:text-[var(--c-text-2)]">Apple Silicon · v1.0.0</span>
+              </span>
             </a>
           </div>
 
