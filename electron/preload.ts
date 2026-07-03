@@ -1,32 +1,35 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { UserActivity, ActivityFilter } from '../src/lib/types'
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  activity: {
-    add: (activity: UserActivity) => ipcRenderer.invoke('activity:add', activity),
-    getAll: (filters?: ActivityFilter) => ipcRenderer.invoke('activity:getAll', filters),
-    delete: (id: string) => ipcRenderer.invoke('activity:delete', id),
-    export: (format: 'json' | 'csv') => ipcRenderer.invoke('activity:export', format),
-  },
-  on: (channel: string, callback: (...args: any[]) => void) => {
-    ipcRenderer.on(channel, (_, ...args) => callback(...args))
-  },
-  once: (channel: string, callback: (...args: any[]) => void) => {
-    ipcRenderer.once(channel, (_, ...args) => callback(...args))
+  isElectron: true as const,
+  platform:   process.platform,
+
+  mcp: {
+    connect:      (tabId: string, command: string) =>
+      ipcRenderer.invoke('mcp:connect', { tabId, command }),
+
+    callTool:     (tabId: string, toolName: string, input: Record<string, unknown>) =>
+      ipcRenderer.invoke('mcp:callTool', { tabId, toolName, input }),
+
+    callResource: (tabId: string, uri: string) =>
+      ipcRenderer.invoke('mcp:callResource', { tabId, uri }),
+
+    disconnect:   (tabId: string) =>
+      ipcRenderer.invoke('mcp:disconnect', { tabId }),
   },
 })
 
 declare global {
   interface Window {
-    electronAPI: {
-      activity: {
-        add: (activity: UserActivity) => Promise<UserActivity>
-        getAll: (filters?: ActivityFilter) => Promise<UserActivity[]>
-        delete: (id: string) => Promise<boolean>
-        export: (format: 'json' | 'csv') => Promise<string | null>
+    electronAPI?: {
+      isElectron: true
+      platform:   string
+      mcp: {
+        connect:      (tabId: string, command: string)                                  => Promise<{ serverInfo: any; tools: any[]; resources: any[]; prompts: any[] }>
+        callTool:     (tabId: string, toolName: string, input: Record<string, unknown>) => Promise<{ result: any; isError: boolean; durationMs: number }>
+        callResource: (tabId: string, uri: string)                                      => Promise<{ result: any }>
+        disconnect:   (tabId: string)                                                   => Promise<void>
       }
-      on: (channel: string, callback: (...args: any[]) => void) => void
-      once: (channel: string, callback: (...args: any[]) => void) => void
     }
   }
 }

@@ -1,6 +1,6 @@
 {
-  "name": "mcp-devtool",
-  "version": "0.1.0",
+  "name": "bubble-mcp",
+  "version": "1.0.0",
   "private": true,
   "main": "electron/main.js",
   "homepage": "./",
@@ -12,17 +12,20 @@
     "start": "next start",
     "lint": "next lint",
     "electron": "electron .",
-    "electron-dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
-    "electron-build": "npm run build && electron-builder",
-    "electron-build:win": "npm run build && electron-builder --win",
-    "electron-build:mac": "npm run build && electron-builder --mac",
-    "electron-build:linux": "npm run build && electron-builder --linux"
+    "electron-compile": "tsc -p electron/tsconfig.json",
+    "electron-prepare": "cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public",
+    "electron-dev": "npm run electron-compile && concurrently \"npm run dev\" \"wait-on http://localhost:3000/inspector --timeout 60000 && electron .\"",
+    "electron-build": "npm run build && npm run electron-prepare && npm run electron-compile && electron-builder",
+    "electron-build:win": "npm run build && npm run electron-prepare && npm run electron-compile && electron-builder --win",
+    "electron-build:mac": "npm run build && npm run electron-prepare && npm run electron-compile && electron-builder --mac",
+    "electron-build:linux": "npm run build && npm run electron-prepare && npm run electron-compile && electron-builder --linux"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.0",
     "@supabase/supabase-js": "^2.108.2",
     "@types/pg": "^8.20.0",
     "bcryptjs": "^3.0.3",
+    "electron-updater": "^6.8.9",
     "eventsource": "^3.0.0",
     "next": "^14.2.0",
     "pg": "^8.21.0",
@@ -48,13 +51,11 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-    "appId": "com.mcp.devtool",
-    "productName": "MCP DevTool",
+    "appId": "com.bubblemcp.app",
+    "productName": "Bubble MCP",
     "files": [
       "electron/**/*",
-      ".next/**/*",
-      "node_modules/**/*",
-      "public/**/*",
+      ".next/standalone/**/*",
       "package.json"
     ],
     "directories": {
@@ -86,6 +87,11 @@
       ],
       "category": "Development"
     },
-    "asar": false
+    "asar": false,
+    "publish": {
+      "provider": "github",
+      "owner": "your-github-username",
+      "repo": "bubble-mcp"
+    }
   }
 }

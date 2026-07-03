@@ -271,6 +271,13 @@ export default function LandingPage() {
               className="px-6 py-3 rounded-lg text-[15px] font-medium bg-[var(--c-bg-2)] text-[var(--c-text-2)] border border-[var(--c-border)] hover:bg-[var(--c-bg-3)] hover:text-[var(--c-text)] transition-colors">
               Browse MCP Directory
             </Link>
+            <a href="/Bubble%20MCP-1.0.0-arm64.dmg" download
+              className="px-6 py-3 rounded-lg text-[15px] font-medium bg-[var(--c-bg-2)] text-[var(--c-text-2)] border border-[var(--c-border)] hover:bg-[var(--c-bg-3)] hover:text-[var(--c-text)] transition-colors flex items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+              </svg>
+              Download for Mac
+            </a>
           </div>
 
           {/* Stats row */}

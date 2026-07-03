@@ -44,7 +44,7 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
     <div className="flex flex-col h-screen overflow-hidden">
 
       {/* ── Topbar ── */}
-      <header className="flex items-center h-12 px-4 gap-4 border-b border-[var(--c-border)] bg-[var(--c-bg-1)] flex-shrink-0">
+      <header className="flex items-center h-12 px-4 gap-4 border-b border-[var(--c-border)] bg-[var(--c-bg-1)] flex-shrink-0 electron-header">
 
         {/* Logo */}
         <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">

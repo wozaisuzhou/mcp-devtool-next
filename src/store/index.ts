@@ -13,6 +13,7 @@ interface TabState {
   connected: boolean
   connecting: boolean
   sessionLoaded: boolean
+  stdioMode: boolean  // true when connected via Electron stdio IPC
   config: ConnectionConfig
   serverInfo: ServerInfo | null
   error: string | null
@@ -44,7 +45,7 @@ interface AppStore {
 
   // ── Connection Actions ─────────────────────────────────────
   setConfig: (c: Partial<ConnectionConfig>) => void
-  setConnected: (info: ServerInfo, tools: MCPTool[], resources: MCPResource[], prompts: MCPPrompt[]) => void
+  setConnected: (info: ServerInfo, tools: MCPTool[], resources: MCPResource[], prompts: MCPPrompt[], stdioMode?: boolean) => void
   setConnecting: (v: boolean) => void
   setDisconnected: () => void
   setError: (e: string | null) => void
@@ -88,6 +89,7 @@ const createEmptyTab = (id: string, name: string): TabState => ({
   connected: false,
   connecting: false,
   sessionLoaded: false,
+  stdioMode: false,
   config: { url: '', transport: 'auto', authToken: '' },
   serverInfo: null,
   error: null,
@@ -143,10 +145,10 @@ export const useStore = create<AppStore>((set, get) => ({
     }
   }),
 
-  setConnected: (info, tools, resources, prompts) => set((s) => ({
+  setConnected: (info, tools, resources, prompts, stdioMode = false) => set((s) => ({
     tabs: s.tabs.map((t) =>
       t.id === s.activeTabId
-        ? { ...t, connected: true, connecting: false, sessionLoaded: false, serverInfo: info, tools, resources, prompts, error: null }
+        ? { ...t, connected: true, connecting: false, sessionLoaded: false, stdioMode, serverInfo: info, tools, resources, prompts, error: null }
         : t
     ),
   })),
@@ -158,7 +160,7 @@ export const useStore = create<AppStore>((set, get) => ({
   setDisconnected: () => set((s) => ({
     tabs: s.tabs.map((t) =>
       t.id === s.activeTabId
-        ? { ...t, connected: false, connecting: false, sessionLoaded: false, serverInfo: null, tools: [], resources: [], prompts: [], selectedItem: null, error: null }
+        ? { ...t, connected: false, connecting: false, sessionLoaded: false, stdioMode: false, serverInfo: null, tools: [], resources: [], prompts: [], selectedItem: null, error: null }
         : t
     ),
   })),

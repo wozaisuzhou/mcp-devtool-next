@@ -1,83 +1,180 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, shell, utilityProcess } from 'electron'
+import type { UtilityProcess } from 'electron'
 import * as path from 'path'
-// runtime dev check (avoid ESM-only electron-is-dev in CommonJS/Electron builds)
-const isDev = process.env.NODE_ENV !== 'production' || (process as any).defaultApp
-import { initializeDatabase, addActivity, getActivities, deleteActivity } from './db'
+import * as fs from 'fs'
+import * as net from 'net'
+import { execSync } from 'child_process'
+import { connectStdio, callStdioTool, callStdioResource, disconnectStdio, disconnectAll } from './mcp-stdio.js'
 
-let mainWindow: BrowserWindow | null
+const isProd = app.isPackaged
 
-async function createWindow() {
+// ── Fix PATH (macOS/Linux desktop launch loses shell PATH) ────────────────────
+function fixPath() {
+  if (process.platform === 'win32') return
+  try {
+    const sh  = process.env.SHELL || '/bin/zsh'
+    const out = execSync(`${sh} -l -c 'echo $PATH'`, { timeout: 3000 }).toString()
+    const p   = out.trim().split('\n').pop() ?? ''
+    if (p) process.env.PATH = p
+  } catch {}
+}
+fixPath()
+
+// ── Embedded Next.js server (production only) ─────────────────────────────────
+
+let nextServer: UtilityProcess | null = null
+let serverPort  = 3000
+
+function findFreePort(): Promise<number> {
+  return new Promise((resolve) => {
+    const srv = net.createServer()
+    srv.listen(0, '127.0.0.1', () => {
+      const port = (srv.address() as net.AddressInfo).port
+      srv.close(() => resolve(port))
+    })
+  })
+}
+
+function waitForPort(port: number, timeout = 20000): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const deadline = Date.now() + timeout
+    function attempt() {
+      const sock = net.createConnection(port, '127.0.0.1')
+      sock.once('connect', () => { sock.destroy(); resolve() })
+      sock.once('error', () => {
+        sock.destroy()
+        if (Date.now() > deadline) { reject(new Error('Server did not start in time')) }
+        else setTimeout(attempt, 150)
+      })
+    }
+    attempt()
+  })
+}
+
+async function startNextServer(): Promise<void> {
+  serverPort = await findFreePort()
+  const serverScript = path.join(__dirname, '../.next/standalone/server.js')
+
+  // utilityProcess.fork() runs a Node.js script inside Electron with no visible
+  // window — unlike spawn(process.execPath) which opens a second Electron instance.
+  nextServer = utilityProcess.fork(serverScript, [], {
+    env: {
+      ...process.env,
+      PORT: String(serverPort),
+      HOSTNAME: '127.0.0.1',
+      NODE_ENV: 'production',
+    },
+    stdio: 'pipe',
+  })
+
+  await waitForPort(serverPort)
+}
+
+// ── Window state ──────────────────────────────────────────────────────────────
+
+interface WindowBounds { x?: number; y?: number; width: number; height: number }
+
+function statePath() {
+  return path.join(app.getPath('userData'), 'window-state.json')
+}
+
+function loadWindowState(): WindowBounds {
+  try { return JSON.parse(fs.readFileSync(statePath(), 'utf8')) }
+  catch { return { width: 1100, height: 720 } }
+}
+
+function saveWindowState(win: BrowserWindow) {
+  if (win.isMaximized() || win.isMinimized()) return
+  fs.writeFileSync(statePath(), JSON.stringify(win.getBounds()))
+}
+
+// ── Auto-updater ──────────────────────────────────────────────────────────────
+
+function setupUpdater() {
+  if (!isProd) return
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { autoUpdater } = require('electron-updater')
+    autoUpdater.checkForUpdatesAndNotify()
+  } catch {}
+}
+
+// ── Create window ─────────────────────────────────────────────────────────────
+
+let mainWindow: BrowserWindow | null = null
+
+function createWindow(port: number) {
+  const bounds = loadWindowState()
+
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
+    ...bounds,
+    minWidth:  800,
+    minHeight: 560,
+    title:     'Bubble MCP',
+    titleBarStyle:        process.platform === 'darwin' ? 'hiddenInset' : 'default',
+    trafficLightPosition: process.platform === 'darwin' ? { x: 16, y: 14 } : undefined,
+    show: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      nodeIntegration: false,
+      preload:          path.join(__dirname, 'preload.js'),
+      nodeIntegration:  false,
       contextIsolation: true,
     },
   })
 
-  const startUrl = isDev
-    ? 'http://localhost:3000'
-    : `file://${path.join(__dirname, '../out/index.html')}`
-
-  mainWindow.loadURL(startUrl)
-
-  if (isDev) {
-    mainWindow.webContents.openDevTools()
-  }
-
-  mainWindow.on('closed', () => {
-    mainWindow = null
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url)
+    return { action: 'deny' }
   })
+
+  mainWindow.webContents.on('did-fail-load', (_, code, desc) => {
+    console.error(`[Bubble MCP] load failed: ${code} ${desc}`)
+  })
+
+  mainWindow.loadURL(`http://127.0.0.1:${port}/inspector`)
+
+  mainWindow.on('close',  () => { if (mainWindow) saveWindowState(mainWindow) })
+  mainWindow.on('closed', () => { mainWindow = null })
 }
 
-app.on('ready', async () => {
-  await initializeDatabase()
-  createWindow()
+// ── IPC: MCP stdio ────────────────────────────────────────────────────────────
 
-  // ── IPC Handlers ───────────────────────────────────────────
-  ipcMain.handle('activity:add', async (_, activity) => {
-    return await addActivity(activity)
-  })
+function registerIpc() {
+  ipcMain.handle('mcp:connect', (_, { tabId, command }: { tabId: string; command: string }) =>
+    connectStdio(tabId, command)
+  )
+  ipcMain.handle('mcp:callTool', (_, { tabId, toolName, input }: { tabId: string; toolName: string; input: Record<string, unknown> }) =>
+    callStdioTool(tabId, toolName, input)
+  )
+  ipcMain.handle('mcp:callResource', (_, { tabId, uri }: { tabId: string; uri: string }) =>
+    callStdioResource(tabId, uri)
+  )
+  ipcMain.handle('mcp:disconnect', (_, { tabId }: { tabId: string }) =>
+    disconnectStdio(tabId)
+  )
+}
 
-  ipcMain.handle('activity:getAll', async (_, filters) => {
-    return await getActivities(filters)
-  })
+// ── App lifecycle ─────────────────────────────────────────────────────────────
 
-  ipcMain.handle('activity:delete', async (_, id) => {
-    return await deleteActivity(id)
-  })
+app.whenReady().then(async () => {
+  registerIpc()
+  setupUpdater()
 
-  ipcMain.handle('activity:export', async (_, format: 'json' | 'csv') => {
-    const activities = await getActivities()
-    
-    if (format === 'json') {
-      return JSON.stringify(activities, null, 2)
-    }
-    
-    if (format === 'csv' && activities.length > 0) {
-      const headers = Object.keys(activities[0]).join(',')
-      const rows = activities.map((a: any) =>
-        Object.values(a).map((v) =>
-          typeof v === 'string' && v.includes(',') ? `"${v}"` : v
-        ).join(',')
-      )
-      return [headers, ...rows].join('\n')
-    }
-    
-    return null
-  })
+  if (isProd) {
+    await startNextServer()
+  }
+
+  createWindow(isProd ? serverPort : 3000)
+})
+
+app.on('before-quit', () => {
+  disconnectAll()
+  nextServer?.kill()
 })
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  if (process.platform !== 'darwin') app.quit()
 })
 
 app.on('activate', () => {
-  if (mainWindow === null) {
-    createWindow()
-  }
+  if (mainWindow === null) createWindow(isProd ? serverPort : 3000)
 })

@@ -24,6 +24,8 @@ export function DetailPane() {
     ? (item as any).name
     : null
 
+  const isElectron = typeof window !== 'undefined' && !!(window as any).electronAPI
+
   async function run() {
     if (!selectedItem) return
     let parsed: Record<string, unknown>
@@ -34,14 +36,23 @@ export function DetailPane() {
 
     if (selectedItem.type === 'tool') {
       const tool = selectedItem.item as MCPTool
-      const res = await fetch('/api/proxy/call', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tool: tool.name, input: parsed }),
-      })
-      const data = await res.json()
+      let data: { status?: string; result?: unknown; error?: string; durationMs?: number }
 
-      const traceStatus = res.ok ? (data.status ?? 'success') : 'error'
+      if (activeTab!.stdioMode && isElectron) {
+        const api = (window as any).electronAPI
+        const raw = await api.mcp.callTool(activeTab!.id, tool.name, parsed)
+        data = { status: raw.isError ? 'error' : 'success', result: raw.result, durationMs: raw.durationMs }
+      } else {
+        const res = await fetch('/api/proxy/call', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tool: tool.name, input: parsed }),
+        })
+        data = await res.json()
+        if (!res.ok) data.status = 'error'
+      }
+
+      const traceStatus = (data.status ?? 'success') as 'success' | 'error'
       const trace: TraceEvent = {
         id: crypto.randomUUID(),
         tool: tool.name,
@@ -66,14 +77,20 @@ export function DetailPane() {
 
     if (selectedItem.type === 'resource') {
       const resource = selectedItem.item as MCPResource
-      const res = await fetch('/api/proxy/resource', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uri: resource.uri }),
-      })
-      const data = await res.json()
-      if (res.ok) setResponse({ status: 'success', data: data.result })
-      else setResponse({ status: 'error', error: data.error })
+      if (activeTab!.stdioMode && isElectron) {
+        const api = (window as any).electronAPI
+        const raw = await api.mcp.callResource(activeTab!.id, resource.uri)
+        setResponse({ status: 'success', data: raw.result })
+      } else {
+        const res = await fetch('/api/proxy/resource', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uri: resource.uri }),
+        })
+        const data = await res.json()
+        if (res.ok) setResponse({ status: 'success', data: data.result })
+        else setResponse({ status: 'error', error: data.error })
+      }
     }
   }
 

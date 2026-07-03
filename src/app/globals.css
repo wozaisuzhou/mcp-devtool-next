@@ -133,3 +133,17 @@ body {
   background: var(--c-green);
   animation: pulse-green 2s ease-in-out infinite;
 }
+
+/* Electron macOS: push content right of traffic lights + make header draggable */
+body.electron-mac .electron-header {
+  padding-left: 80px;
+  -webkit-app-region: drag;
+}
+/* Interactive elements inside the header must not be drag targets */
+body.electron-mac .electron-header button,
+body.electron-mac .electron-header a,
+body.electron-mac .electron-header input,
+body.electron-mac .electron-header select,
+body.electron-mac .electron-header label {
+  -webkit-app-region: no-drag;
+}

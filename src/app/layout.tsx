@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import VisitTracker from '@/components/VisitTracker'
+import { ElectronMacPatch } from '@/components/ElectronMacPatch'
 
 export const metadata: Metadata = {
   title: 'Bubble MCP',
-  description: 'Inspector · Chat · Trace · OAuth for MCP servers',
+  description: 'The professional toolkit for MCP server development — inspect, test, trace, and monitor.',
 }
 
 const themeScript = `
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
+        <ElectronMacPatch />
         <VisitTracker />
         {children}
       </body>

@@ -36,7 +36,9 @@ export function ConnectionBar() {
     setTransport(activeTab.config.transport || 'auto')
   }, [activeTabId, activeTab.config.url, activeTab.config.transport])
 
+  const isElectron = typeof window !== 'undefined' && !!(window as any).electronAPI
   const isGitHubCopilot = url.includes('githubcopilot.com')
+  const isStdioMode = transport === 'stdio' && isElectron
 
   async function connect() {
     if (!url.trim()) return
@@ -45,21 +47,31 @@ export function ConnectionBar() {
     setConfig({ url: url.trim(), transport, authToken })
 
     try {
-      const res = await fetch('/api/proxy/connect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: url.trim(), transport, authToken: authToken || undefined }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Connection failed')
-      setConnected(data.serverInfo, data.tools, data.resources, data.prompts)
+      if (isStdioMode) {
+        const api = (window as any).electronAPI
+        const data = await api.mcp.connect(activeTab!.id, url.trim())
+        setConnected(data.serverInfo, data.tools, data.resources, data.prompts, true)
+      } else {
+        const res = await fetch('/api/proxy/connect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: url.trim(), transport, authToken: authToken || undefined }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error ?? 'Connection failed')
+        setConnected(data.serverInfo, data.tools, data.resources, data.prompts)
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     }
   }
 
   function disconnect() {
-    fetch('/api/proxy/disconnect', { method: 'POST' }).catch(() => {})
+    if (activeTab!.stdioMode && isElectron) {
+      ;(window as any).electronAPI.mcp.disconnect(activeTab!.id).catch(() => {})
+    } else {
+      fetch('/api/proxy/disconnect', { method: 'POST' }).catch(() => {})
+    }
     setDisconnected()
   }
 
@@ -156,7 +168,7 @@ export function ConnectionBar() {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && connect()}
-            placeholder="https://your-server.com/mcp"
+            placeholder={isStdioMode ? 'node /path/to/server.js' : 'https://your-server.com/mcp'}
             disabled={liveConnected || activeTab.connecting}
             className="w-full bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-md px-3 py-1.5 text-[14px] font-mono
                        text-[var(--c-text)] placeholder-[var(--c-text-3)] outline-none focus:border-[var(--c-purple-2)]
