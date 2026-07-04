@@ -281,6 +281,16 @@ export default function LandingPage() {
                 <span className="text-[11px] text-[var(--c-text-3)] group-hover:text-[var(--c-text-2)]">Apple Silicon · v1.0.0</span>
               </span>
             </a>
+            <a href="https://dusyyu9jj2i4zwio.public.blob.vercel-storage.com/Bubble%20MCP%20Setup%201.0.0.zip" download
+              className="group px-5 py-2.5 rounded-lg bg-[var(--c-bg-2)] text-[var(--c-text-2)] border border-[var(--c-border)] hover:bg-[var(--c-bg-3)] hover:text-[var(--c-text)] transition-colors flex items-center gap-3">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
+                <path d="M3 5.5L10.2 4.5V11.4H3V5.5ZM10.2 12.6V19.5L3 18.5V12.6H10.2ZM11.4 4.3L21 3V11.4H11.4V4.3ZM21 12.6V21L11.4 19.7V12.6H21Z"/>
+              </svg>
+              <span className="flex flex-col items-start leading-tight">
+                <span className="text-[15px] font-medium">Download for Windows</span>
+                <span className="text-[11px] text-[var(--c-text-3)] group-hover:text-[var(--c-text-2)]">Windows 10/11 · v1.0.0</span>
+              </span>
+            </a>
           </div>
 
           {/* Stats row */}
