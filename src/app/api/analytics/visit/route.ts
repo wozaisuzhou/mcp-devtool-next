@@ -17,12 +17,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, skipped: true })
     }
 
+    const ipAddress = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || null
+
     await db.from('site_visits').insert({
       path: String(path).slice(0, 2048),
       visitor_id: String(visitorId).slice(0, 64),
       user_email: userEmail ? String(userEmail).slice(0, 255) : null,
       referrer: referrer ? String(referrer).slice(0, 2048) : null,
       user_agent: userAgent.slice(0, 512),
+      ip_address: ipAddress ? ipAddress.slice(0, 64) : null,
     })
 
     return NextResponse.json({ ok: true })

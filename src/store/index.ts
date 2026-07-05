@@ -106,7 +106,7 @@ export const useStore = create<AppStore>((set, get) => ({
   messages: [],
   claudeApiKey: '',
   sidebarWidth: 256,
-  sectionHeights: { tools: 150, resources: 150, prompts: 150 },
+  sectionHeights: { tools: 280, resources: 280, prompts: 280 },
   user: null,
   userReady: false,
 

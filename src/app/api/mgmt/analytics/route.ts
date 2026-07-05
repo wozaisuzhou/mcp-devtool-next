@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
   const [allResult, todayResult, weekResult] = await Promise.all([
-    db.from('site_visits').select('path, visitor_id, user_email, referrer, created_at', { count: 'exact' })
+    db.from('site_visits').select('path, visitor_id, user_email, referrer, ip_address, created_at', { count: 'exact' })
       .gte('created_at', since)
       .order('created_at', { ascending: false })
       .limit(500),
@@ -75,6 +75,7 @@ export async function GET(req: NextRequest) {
     visitorId:  r.visitor_id,
     userEmail:  r.user_email ?? null,
     referrer:   r.referrer ?? null,
+    ipAddress:  r.ip_address ?? null,
     createdAt:  r.created_at,
   }))
 

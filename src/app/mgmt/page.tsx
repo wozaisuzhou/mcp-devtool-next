@@ -30,6 +30,7 @@ interface RecentVisit {
   visitorId: string
   userEmail: string | null
   referrer: string | null
+  ipAddress: string | null
   createdAt: string
 }
 
@@ -334,6 +335,7 @@ function TrafficTab({ adminEmail }: { adminEmail: string }) {
                       <th className="pb-2 pr-4 font-medium">Time</th>
                       <th className="pb-2 pr-4 font-medium">Path</th>
                       <th className="pb-2 pr-4 font-medium">Visitor</th>
+                      <th className="pb-2 pr-4 font-medium">IP</th>
                       <th className="pb-2 pr-4 font-medium">Referrer</th>
                     </tr>
                   </thead>
@@ -346,6 +348,9 @@ function TrafficTab({ adminEmail }: { adminEmail: string }) {
                         <td className="py-1.5 pr-4 font-mono text-[var(--c-text)] max-w-[200px] truncate">{v.path}</td>
                         <td className="py-1.5 pr-4 text-[var(--c-text-2)] max-w-[180px] truncate">
                           {v.userEmail ?? <span className="text-[var(--c-text-3)]">anon·{v.visitorId.slice(0, 8)}</span>}
+                        </td>
+                        <td className="py-1.5 pr-4 font-mono text-[var(--c-text-2)] whitespace-nowrap">
+                          {v.ipAddress ?? <span className="text-[var(--c-text-3)]">—</span>}
                         </td>
                         <td className="py-1.5 pr-4 text-[var(--c-text-3)] max-w-[160px] truncate">
                           {v.referrer ? (
