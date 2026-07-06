@@ -28,18 +28,6 @@ const FEATURES = [
   {
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      </svg>
-    ),
-    title: 'Chat',
-    desc: 'Test multi-turn prompts against your MCP server exactly as Claude would use them — no wiring required.',
-    href: '/chat',
-    color: 'var(--c-blue)',
-    bg: 'rgba(96,165,250,0.10)',
-  },
-  {
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
       </svg>
     ),
@@ -52,14 +40,15 @@ const FEATURES = [
   {
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
       </svg>
     ),
-    title: 'Sessions',
-    desc: 'Save inspection snapshots and replay them later. Share exact server states with teammates without a live connection.',
-    href: '/sessions',
-    color: 'var(--c-amber)',
-    bg: 'rgba(251,191,36,0.10)',
+    title: 'Teams',
+    desc: 'Share sessions and test suites across your team. Members access shared work automatically — no manual handoff.',
+    href: '/team',
+    color: '#22d3ee',
+    bg: 'rgba(34,211,238,0.10)',
   },
   {
     icon: (
@@ -85,6 +74,30 @@ const FEATURES = [
     color: '#f472b6',
     bg: 'rgba(244,114,182,0.10)',
     badge: 'New',
+  },
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+      </svg>
+    ),
+    title: 'Sessions',
+    desc: 'Save inspection snapshots and replay them later. Share exact server states with teammates without a live connection.',
+    href: '/sessions',
+    color: 'var(--c-amber)',
+    bg: 'rgba(251,191,36,0.10)',
+  },
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+    ),
+    title: 'Chat',
+    desc: 'Test multi-turn prompts against your MCP server exactly as Claude would use them — no wiring required.',
+    href: '/chat',
+    color: 'var(--c-blue)',
+    bg: 'rgba(96,165,250,0.10)',
   },
   {
     icon: (
@@ -125,19 +138,6 @@ const FEATURES = [
     color: '#34d399',
     bg: 'rgba(52,211,153,0.10)',
     badge: 'New',
-  },
-  {
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-    ),
-    title: 'Teams',
-    desc: 'Share sessions and test suites across your team. Members access shared work automatically — no manual handoff.',
-    href: '/team',
-    color: '#22d3ee',
-    bg: 'rgba(34,211,238,0.10)',
   },
   {
     icon: (
@@ -247,16 +247,16 @@ export default function LandingPage() {
         <div className="relative flex flex-col items-center gap-5 max-w-3xl">
           <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--c-purple-border)] bg-[var(--c-purple-bg)] text-[12px] font-medium text-[var(--c-purple)]">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--c-purple-2)]" />
-            CI/CD · Analytics · Monitoring · Directory — all new
+            Debugging · Test management · CI/CD pipelines · Team collaboration
           </div>
 
           <h1 className="text-[40px] sm:text-[52px] font-bold text-[var(--c-text)] tracking-tight leading-[1.1]">
-            The professional toolkit<br className="hidden sm:block" /> for MCP server development
+            Debug, test, and ship<br className="hidden sm:block" /> MCP servers as a team
           </h1>
 
           <p className="text-[16px] text-[var(--c-text-3)] leading-relaxed max-w-[560px]">
-            Inspect, test, trace, and monitor your Model Context Protocol servers —
-            from local dev to production. Built for teams who ship.
+            Inspect every tool, turn what you find into a regression test suite, run it in your
+            pipeline, and share the whole session with your team — all in one place.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 mt-2">
@@ -309,6 +309,343 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── Pillars strip ── */}
+      <section className="px-6 py-10 border-t border-[var(--c-border)] bg-[var(--c-bg-1)]">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            {
+              href: '#debugging', color: 'var(--c-purple)', bg: 'rgba(124,111,247,0.10)',
+              title: 'Debugging', desc: 'Live inspector + full JSON-RPC trace with diffing',
+              icon: (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+              ),
+            },
+            {
+              href: '#pipeline', color: '#f472b6', bg: 'rgba(244,114,182,0.10)',
+              title: 'CI/CD Pipeline', desc: 'Run test suites from GitHub Actions on every push',
+              icon: (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                </svg>
+              ),
+            },
+            {
+              href: '#team-collab', color: '#22d3ee', bg: 'rgba(34,211,238,0.10)',
+              title: 'Team Collaboration', desc: 'Shared sessions and test suites, no manual handoff',
+              icon: (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              ),
+            },
+          ].map(p => (
+            <a key={p.title} href={p.href}
+              className="flex items-center gap-3 p-4 rounded-xl border border-[var(--c-border)] hover:border-[var(--c-border-2)] hover:bg-[var(--c-bg-2)] transition-colors">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                   style={{ background: p.bg, color: p.color }}>
+                {p.icon}
+              </div>
+              <div>
+                <p className="text-[14px] font-semibold text-[var(--c-text)]">{p.title}</p>
+                <p className="text-[12px] text-[var(--c-text-3)] leading-snug">{p.desc}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Inspector & Debugging spotlight ── */}
+      <section id="debugging" className="py-20 px-6 border-t border-[var(--c-border)] scroll-mt-14" style={{ background: 'rgba(124,111,247,0.04)' }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <SectionLabel>Debugging</SectionLabel>
+              <h2 className="text-[30px] sm:text-[38px] font-bold text-[var(--c-text)] tracking-tight leading-tight mb-4">
+                Stop guessing why a tool call failed.<br />See every byte that moved.
+              </h2>
+              <p className="text-[14px] text-[var(--c-text-3)] leading-relaxed mb-6">
+                The Inspector browses every tool, resource, and prompt your server exposes and lets
+                you call any of them live with a schema-aware JSON editor. Trace logs the full
+                JSON-RPC exchange in real time, so when something breaks you can see exactly what
+                was sent and what came back — no console.log guesswork.
+              </p>
+              <ul className="flex flex-col gap-2.5 mb-8">
+                {[
+                  'Schema-aware JSON editor for calling any tool live',
+                  'Full JSON-RPC request/response log, captured automatically',
+                  'Diff any two calls to spot exactly what changed',
+                  'Save a snapshot and keep browsing it with no live connection',
+                ].map(item => (
+                  <li key={item} className="flex items-start gap-2.5 text-[13px] text-[var(--c-text-2)]">
+                    <svg className="flex-shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-purple)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/inspector"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-[14px] font-semibold transition-colors"
+                style={{ background: 'var(--c-purple-bg)', color: 'var(--c-purple)', border: '1px solid var(--c-purple-border)' }}>
+                Open the Inspector
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </Link>
+            </div>
+
+            {/* Trace mock panel */}
+            <div className="rounded-xl border border-[var(--c-border)] bg-[var(--c-bg-1)] overflow-hidden shadow-lg">
+              <div className="flex items-center gap-1.5 px-4 py-3 border-b border-[var(--c-border)] bg-[var(--c-bg-2)]">
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-red)]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-amber)]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-green)]" />
+                <span className="ml-2 text-[12px] text-[var(--c-text-3)] font-mono">trace · search_web</span>
+              </div>
+              <div className="p-4 flex flex-col gap-2 text-[12px] font-mono">
+                <div className="flex items-start gap-2 text-[var(--c-text-2)]">
+                  <span className="text-[var(--c-blue)] shrink-0">→ req</span>
+                  <span className="truncate">{`{"method":"tools/call","params":{"name":"search_web","arguments":{"query":"mcp spec"}}}`}</span>
+                </div>
+                <div className="flex items-start gap-2 text-[var(--c-text-2)]">
+                  <span className="text-[var(--c-green)] shrink-0">← res</span>
+                  <span className="truncate">{`{"content":[{"type":"text","text":"3 results found"}]}`}</span>
+                </div>
+                <div className="mt-2 pt-2 border-t border-[var(--c-border)]">
+                  <p className="text-[11px] text-[var(--c-text-3)] mb-1.5">Diff vs. previous call</p>
+                  <div className="rounded-md bg-[var(--c-bg-2)] p-2.5 flex flex-col gap-1">
+                    <span className="text-[var(--c-red)]">- &quot;query&quot;: &quot;mcp servers&quot;</span>
+                    <span className="text-[var(--c-green)]">+ &quot;query&quot;: &quot;mcp spec&quot;</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CI/CD Pipeline spotlight ── */}
+      <section id="pipeline" className="py-20 px-6 border-t border-[var(--c-border)] scroll-mt-14" style={{ background: 'rgba(244,114,182,0.03)' }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <SectionLabel color="#f472b6">CI/CD Pipeline</SectionLabel>
+              <h2 className="text-[30px] sm:text-[38px] font-bold text-[var(--c-text)] tracking-tight leading-tight mb-4">
+                Ship with confidence.<br />Catch regressions before they reach prod.
+              </h2>
+              <p className="text-[14px] text-[var(--c-text-3)] leading-relaxed mb-6">
+                Every suite you build is pipeline-ready. Generate an API key, drop one workflow
+                file into your repo, and your MCP tests run automatically on every push —
+                failing the build the moment a tool&apos;s output stops matching your assertions.
+              </p>
+              <ul className="flex flex-col gap-2.5 mb-8">
+                {[
+                  'API key auth — generate in one click, revoke anytime',
+                  'GitHub Actions YAML auto-generated with your suite ID',
+                  'Returns structured JSON — pass/fail/error per test case',
+                  'Fails the build if any assertion or tool call errors',
+                ].map(item => (
+                  <li key={item} className="flex items-start gap-2.5 text-[13px] text-[var(--c-text-2)]">
+                    <svg className="flex-shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f472b6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/tests"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-[14px] font-semibold transition-colors"
+                style={{ background: 'rgba(244,114,182,0.12)', color: '#f472b6', border: '1px solid rgba(244,114,182,0.25)' }}>
+                Set up CI/CD
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </Link>
+            </div>
+
+            {/* Code snippet */}
+            <div className="rounded-xl border border-[var(--c-border)] bg-[var(--c-bg-1)] overflow-hidden shadow-lg">
+              <div className="flex items-center gap-1.5 px-4 py-3 border-b border-[var(--c-border)] bg-[var(--c-bg-2)]">
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-red)]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-amber)]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-green)]" />
+                <span className="ml-2 text-[12px] text-[var(--c-text-3)] font-mono">.github/workflows/mcp-tests.yml</span>
+              </div>
+              <pre className="p-5 text-[12px] font-mono text-[var(--c-text-2)] overflow-x-auto leading-relaxed">{`name: MCP Regression Tests
+on: [push, pull_request]
+jobs:
+  mcp-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run MCP test suite
+        run: |
+          result=$(curl -s -X POST \\
+            -H "Authorization: Bearer \\
+                \${{ secrets.MCP_API_KEY }}" \\
+            -d '{"serverUrl":
+                "\${{ vars.MCP_SERVER_URL }}"}' \\
+            https://your-app.com/api/v1/ \\
+            test-suites/SUITE_ID/run)
+
+          failed=$(echo "$result" | \\
+            jq '.failed + .errors')
+          if [ "$failed" -gt "0" ]; then
+            exit 1
+          fi`}</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Team Collaboration spotlight ── */}
+      <section id="team-collab" className="py-20 px-6 border-t border-[var(--c-border)] scroll-mt-14" style={{ background: 'rgba(34,211,238,0.04)' }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Shared workspace mock */}
+            <div className="order-2 lg:order-1 rounded-xl border border-[var(--c-border)] bg-[var(--c-bg-1)] overflow-hidden shadow-lg">
+              <div className="flex items-center gap-1.5 px-4 py-3 border-b border-[var(--c-border)] bg-[var(--c-bg-2)]">
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-red)]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-amber)]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-green)]" />
+                <span className="ml-2 text-[12px] text-[var(--c-text-3)] font-mono">Acme Team · shared</span>
+              </div>
+              <div className="p-4 flex flex-col gap-2.5">
+                {[
+                  { who: 'Priya',  what: 'saved session "prod-billing-api"', when: '12m ago' },
+                  { who: 'Marcus', what: 'ran test suite "checkout-flow" · 14/14 passed', when: '1h ago' },
+                  { who: 'You',    what: 'left a comment on "search_web" schema', when: '3h ago' },
+                ].map(r => (
+                  <div key={r.who + r.what} className="flex items-start gap-2.5 px-3 py-2 rounded-lg bg-[var(--c-bg-2)] border border-[var(--c-border)]">
+                    <span className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold flex-shrink-0"
+                          style={{ background: 'rgba(34,211,238,0.15)', color: '#22d3ee' }}>
+                      {r.who[0]}
+                    </span>
+                    <div>
+                      <p className="text-[12px] text-[var(--c-text)]"><span className="font-semibold">{r.who}</span> {r.what}</p>
+                      <p className="text-[11px] text-[var(--c-text-3)]">{r.when}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="order-1 lg:order-2">
+              <SectionLabel color="#22d3ee">Team Collaboration · Shared Sessions</SectionLabel>
+              <h2 className="text-[30px] sm:text-[38px] font-bold text-[var(--c-text)] tracking-tight leading-tight mb-4">
+                One shared session. Everyone&apos;s on the same page.
+              </h2>
+              <p className="text-[14px] text-[var(--c-text-3)] leading-relaxed mb-6">
+                Save a session once and it&apos;s instantly shared with the whole team — every tool,
+                trace, and test suite included. No exporting JSON files over Slack, no re-explaining
+                what broke. Whoever&apos;s on call can pick up exactly where a teammate left off.
+              </p>
+              <ul className="flex flex-col gap-2.5 mb-8">
+                {[
+                  'Shared sessions — save once, the whole team sees it instantly',
+                  'Shared test suites — everyone runs and edits the same cases',
+                  'No manual handoff — members see new work as soon as it’s saved',
+                  'Role-based access so only the right people can connect or edit',
+                ].map(item => (
+                  <li key={item} className="flex items-start gap-2.5 text-[13px] text-[var(--c-text-2)]">
+                    <svg className="flex-shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/team"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-[14px] font-semibold transition-colors"
+                style={{ background: 'rgba(34,211,238,0.12)', color: '#22d3ee', border: '1px solid rgba(34,211,238,0.25)' }}>
+                Set up your team
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Test Management spotlight ── */}
+      <section className="py-20 px-6 border-t border-[var(--c-border)]">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Test suite mock panel */}
+            <div className="order-2 lg:order-1 rounded-xl border border-[var(--c-border)] bg-[var(--c-bg-1)] overflow-hidden">
+              <div className="flex items-center gap-1.5 px-4 py-3 border-b border-[var(--c-border)] bg-[var(--c-bg-2)]">
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-red)]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-amber)]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-green)]" />
+                <span className="ml-2 text-[12px] text-[var(--c-text-3)] font-mono">checkout-flow · 14 cases</span>
+              </div>
+              <div className="p-4 flex flex-col gap-2">
+                {[
+                  { name: 'create_order',   status: 'pass', detail: '42ms' },
+                  { name: 'apply_discount', status: 'pass', detail: '18ms' },
+                  { name: 'refund_order',   status: 'fail', detail: 'expected status: "refunded", got "pending"' },
+                  { name: '11 more cases',  status: 'pass', detail: 'all passing' },
+                ].map(c => (
+                  <div key={c.name} className="flex items-start gap-2.5 px-3 py-2 rounded-lg bg-[var(--c-bg-2)] border border-[var(--c-border)]">
+                    {c.status === 'pass' ? (
+                      <svg className="flex-shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-green)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    ) : (
+                      <svg className="flex-shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-red)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    )}
+                    <div>
+                      <p className="text-[12px] font-mono font-semibold text-[var(--c-text)]">{c.name}</p>
+                      <p className="text-[11px] text-[var(--c-text-3)] font-mono">{c.detail}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="order-1 lg:order-2">
+              <SectionLabel color="var(--c-green)">Test Management</SectionLabel>
+              <h2 className="text-[28px] sm:text-[34px] font-bold text-[var(--c-text)] tracking-tight leading-tight mb-4">
+                Turn manual clicking into a real regression suite.
+              </h2>
+              <p className="text-[14px] text-[var(--c-text-3)] leading-relaxed mb-6">
+                Define a test case once — input, expected output, assertions — and never manually
+                re-check that tool again. Group cases into suites, run them all in one click, and
+                see a diff the moment a tool&apos;s behavior drifts from what you expect.
+              </p>
+              <ul className="flex flex-col gap-2.5 mb-8">
+                {[
+                  'Define inputs, expected outputs, and assertions per test case',
+                  'Group cases into suites and run the whole thing in one click',
+                  'Failures show a diff between expected and actual result',
+                  'Suites live with the session — share them or run from CI',
+                ].map(item => (
+                  <li key={item} className="flex items-start gap-2.5 text-[13px] text-[var(--c-text-2)]">
+                    <svg className="flex-shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-green)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/tests"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-[14px] font-semibold transition-colors"
+                style={{ background: 'var(--c-green-bg)', color: 'var(--c-green)', border: '1px solid var(--c-green-dark)' }}>
+                Build a test suite
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Features grid ── */}
       <section className="py-20 px-6 border-t border-[var(--c-border)]">
         <div className="max-w-6xl mx-auto">
@@ -343,78 +680,6 @@ export default function LandingPage() {
                 </div>
               </Link>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── CI/CD spotlight ── */}
-      <section className="py-20 px-6 border-t border-[var(--c-border)]">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <SectionLabel color="#f472b6">CI/CD Integration</SectionLabel>
-              <h2 className="text-[28px] sm:text-[34px] font-bold text-[var(--c-text)] tracking-tight leading-tight mb-4">
-                Ship with confidence.<br />Catch regressions before they reach prod.
-              </h2>
-              <p className="text-[14px] text-[var(--c-text-3)] leading-relaxed mb-6">
-                Build test suites in the UI, generate an API key, and drop one workflow file into your repo.
-                Every push runs your MCP tests automatically — no separate test framework needed.
-              </p>
-              <ul className="flex flex-col gap-2.5 mb-8">
-                {[
-                  'API key auth — generate in one click, revoke anytime',
-                  'GitHub Actions YAML auto-generated with your suite ID',
-                  'Returns structured JSON — pass/fail/error per test case',
-                  'Fails the build if any assertion or tool call errors',
-                ].map(item => (
-                  <li key={item} className="flex items-start gap-2.5 text-[13px] text-[var(--c-text-2)]">
-                    <svg className="flex-shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f472b6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/tests"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-[14px] font-semibold transition-colors"
-                style={{ background: 'rgba(244,114,182,0.12)', color: '#f472b6', border: '1px solid rgba(244,114,182,0.25)' }}>
-                Set up CI/CD
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-              </Link>
-            </div>
-
-            {/* Code snippet */}
-            <div className="rounded-xl border border-[var(--c-border)] bg-[var(--c-bg-1)] overflow-hidden">
-              <div className="flex items-center gap-1.5 px-4 py-3 border-b border-[var(--c-border)] bg-[var(--c-bg-2)]">
-                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-red)]" />
-                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-amber)]" />
-                <span className="w-2.5 h-2.5 rounded-full bg-[var(--c-green)]" />
-                <span className="ml-2 text-[12px] text-[var(--c-text-3)] font-mono">.github/workflows/mcp-tests.yml</span>
-              </div>
-              <pre className="p-5 text-[12px] font-mono text-[var(--c-text-2)] overflow-x-auto leading-relaxed">{`name: MCP Regression Tests
-on: [push, pull_request]
-jobs:
-  mcp-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run MCP test suite
-        run: |
-          result=$(curl -s -X POST \\
-            -H "Authorization: Bearer \\
-                \${{ secrets.MCP_API_KEY }}" \\
-            -d '{"serverUrl":
-                "\${{ vars.MCP_SERVER_URL }}"}' \\
-            https://your-app.com/api/v1/ \\
-            test-suites/SUITE_ID/run)
-
-          failed=$(echo "$result" | \\
-            jq '.failed + .errors')
-          if [ "$failed" -gt "0" ]; then
-            exit 1
-          fi`}</pre>
-            </div>
           </div>
         </div>
       </section>
