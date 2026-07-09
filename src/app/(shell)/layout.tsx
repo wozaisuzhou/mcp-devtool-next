@@ -44,7 +44,7 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
     <div className="flex flex-col h-screen overflow-hidden">
 
       {/* ── Topbar ── */}
-      <header className="flex items-center h-12 px-4 gap-4 border-b border-[var(--c-border)] bg-[var(--c-bg-1)] flex-shrink-0 electron-header">
+      <header className="flex items-center h-10 px-3 gap-3 border-b border-[var(--c-border)] bg-[var(--c-bg-1)] flex-shrink-0 electron-header">
 
         {/* Logo */}
         <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
@@ -59,27 +59,28 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
           )}
         </Link>
 
-        {/* Connection status */}
-        <div className="flex items-center gap-2 text-[13px] text-[var(--c-text-2)] ml-1">
+        {/* Connection status — breadcrumb style */}
+        <div className="flex items-center gap-1.5 text-[12px] font-mono text-[var(--c-text-3)] ml-1">
+          <span className="opacity-60">/</span>
           <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
             connecting    ? 'bg-[var(--c-amber)] animate-pulse' :
             sessionLoaded ? 'bg-[var(--c-blue)]' :
             connected     ? 'dot-connected' :
                             'bg-[var(--c-text-3)]'
           }`} />
-          <span>
-            {connecting    ? 'Connecting…' :
-             sessionLoaded ? serverInfo?.name ?? 'Snapshot' :
-             connected     ? serverInfo?.name ?? 'Connected' :
-                             'Not connected'}
+          <span className={connected || sessionLoaded || connecting ? 'text-[var(--c-text-2)]' : ''}>
+            {connecting    ? 'connecting…' :
+             sessionLoaded ? serverInfo?.name ?? 'snapshot' :
+             connected     ? serverInfo?.name ?? 'connected' :
+                             'not connected'}
           </span>
           {sessionLoaded && (
-            <span className="text-[11px] font-bold px-1.5 py-px rounded-full bg-[var(--c-blue-bg)] text-[var(--c-blue)]">
+            <span className="text-[10px] font-bold px-1.5 py-px rounded-full bg-[var(--c-blue-bg)] text-[var(--c-blue)] font-sans">
               snapshot
             </span>
           )}
           {connected && !sessionLoaded && serverInfo && (
-            <span className="text-[var(--c-text-3)] font-mono text-[11px]">
+            <span className="text-[var(--c-text-3)] text-[11px]">
               v{serverInfo.version}
             </span>
           )}

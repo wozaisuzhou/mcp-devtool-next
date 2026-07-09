@@ -40,8 +40,8 @@ const config: Config = {
         mono: ['JetBrains Mono', 'Fira Code', 'Cascadia Code', 'monospace'],
       },
       borderRadius: {
-        DEFAULT: '8px',
-        lg: '12px',
+        DEFAULT: '4px',
+        lg: '6px',
       },
     },
   },

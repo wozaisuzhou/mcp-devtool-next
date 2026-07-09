@@ -7,7 +7,7 @@ import type {
 
 const USER_STORAGE_KEY = 'flashman_user'
 
-interface TabState {
+export interface TabState {
   id: string
   name: string
   connected: boolean
@@ -21,7 +21,13 @@ interface TabState {
   resources: MCPResource[]
   prompts: MCPPrompt[]
   selectedItem: { type: 'tool' | 'resource' | 'prompt'; item: MCPTool | MCPResource | MCPPrompt } | null
+  openItems: { key: string; type: 'tool' | 'resource' | 'prompt' }[]
   traces: TraceEvent[]
+}
+
+function itemKey(type: 'tool' | 'resource' | 'prompt', item: MCPTool | MCPResource | MCPPrompt): string {
+  const name = type === 'resource' ? (item as MCPResource).uri : (item as MCPTool | MCPPrompt).name
+  return `${type}:${name}`
 }
 
 interface AppStore {
@@ -50,6 +56,7 @@ interface AppStore {
   setDisconnected: () => void
   setError: (e: string | null) => void
   selectItem: (type: 'tool' | 'resource' | 'prompt', item: MCPTool | MCPResource | MCPPrompt) => void
+  closeItem: (key: string) => void
   addTrace: (t: TraceEvent) => void
   clearTraces: () => void
   loadSession: (params: {
@@ -97,6 +104,7 @@ const createEmptyTab = (id: string, name: string): TabState => ({
   resources: [],
   prompts: [],
   selectedItem: null,
+  openItems: [],
   traces: [],
 })
 
@@ -160,7 +168,7 @@ export const useStore = create<AppStore>((set, get) => ({
   setDisconnected: () => set((s) => ({
     tabs: s.tabs.map((t) =>
       t.id === s.activeTabId
-        ? { ...t, connected: false, connecting: false, sessionLoaded: false, stdioMode: false, serverInfo: null, tools: [], resources: [], prompts: [], selectedItem: null, error: null }
+        ? { ...t, connected: false, connecting: false, sessionLoaded: false, stdioMode: false, serverInfo: null, tools: [], resources: [], prompts: [], selectedItem: null, openItems: [], error: null }
         : t
     ),
   })),
@@ -182,6 +190,7 @@ export const useStore = create<AppStore>((set, get) => ({
             traces,
             error: null,
             selectedItem: null,
+            openItems: [],
           }
         : t
     ),
@@ -191,8 +200,39 @@ export const useStore = create<AppStore>((set, get) => ({
     tabs: s.tabs.map((t) => (t.id === s.activeTabId ? { ...t, error: e, connecting: false } : t)),
   })),
 
-  selectItem: (type, item) => set((s) => ({
-    tabs: s.tabs.map((t) => (t.id === s.activeTabId ? { ...t, selectedItem: { type, item } } : t)),
+  selectItem: (type, item) => set((s) => {
+    const key = itemKey(type, item)
+    return {
+      tabs: s.tabs.map((t) => {
+        if (t.id !== s.activeTabId) return t
+        const alreadyOpen = t.openItems.some((o) => o.key === key)
+        return {
+          ...t,
+          selectedItem: { type, item },
+          openItems: alreadyOpen ? t.openItems : [...t.openItems, { key, type }],
+        }
+      }),
+    }
+  }),
+
+  closeItem: (key) => set((s) => ({
+    tabs: s.tabs.map((t) => {
+      if (t.id !== s.activeTabId) return t
+      const idx = t.openItems.findIndex((o) => o.key === key)
+      if (idx === -1) return t
+      const newOpenItems = t.openItems.filter((o) => o.key !== key)
+      const wasSelected = t.selectedItem && itemKey(t.selectedItem.type, t.selectedItem.item) === key
+      if (!wasSelected) return { ...t, openItems: newOpenItems }
+
+      const fallback = newOpenItems[idx] ?? newOpenItems[idx - 1]
+      let selectedItem: TabState['selectedItem'] = null
+      if (fallback) {
+        const list = fallback.type === 'tool' ? t.tools : fallback.type === 'resource' ? t.resources : t.prompts
+        const item = list.find((i: any) => itemKey(fallback.type, i) === fallback.key)
+        if (item) selectedItem = { type: fallback.type, item }
+      }
+      return { ...t, openItems: newOpenItems, selectedItem }
+    }),
   })),
 
   addTrace: (t) => set((s) => ({
