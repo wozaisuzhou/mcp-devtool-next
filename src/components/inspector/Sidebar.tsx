@@ -4,9 +4,9 @@ import { useStore } from '@/store'
 import type { MCPTool, MCPResource, MCPPrompt } from '@/lib/types'
 
 export function Sidebar() {
-  const { selectItem, sidebarWidth, setSidebarWidth, sectionHeights, setSectionHeight, getActiveTab } = useStore()
+  const { selectItem, sidebarWidth, setSidebarWidth, getActiveTab } = useStore()
   const activeTab = getActiveTab()
-  
+
   if (!activeTab) return null
 
   const tools = activeTab.tools
@@ -16,12 +16,9 @@ export function Sidebar() {
 
   const resizeRef = useRef<HTMLDivElement>(null)
   const [isResizing, setIsResizing] = useState(false)
-  const [resizingSection, setResizingSection] = useState<'tools-resources' | 'resources-prompts' | null>(null)
   const [searchTools, setSearchTools] = useState('')
   const [searchResources, setSearchResources] = useState('')
   const [searchPrompts, setSearchPrompts] = useState('')
-  const startYRef = useRef<number>(0)
-  const startHeightsRef = useRef<{ tools: number; resources: number; prompts: number }>({ ...sectionHeights })
 
   const filteredTools = tools.filter(t => t.name.toLowerCase().includes(searchTools.toLowerCase()))
   const filteredResources = resources.filter(r => r.name.toLowerCase().includes(searchResources.toLowerCase()))
@@ -48,52 +45,12 @@ export function Sidebar() {
     }
   }, [isResizing, setSidebarWidth])
 
-  useEffect(() => {
-    if (!resizingSection) return
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const delta = e.clientY - startYRef.current
-
-      if (resizingSection === 'tools-resources') {
-        const newToolsHeight = Math.max(80, startHeightsRef.current.tools + delta)
-        const newResourcesHeight = Math.max(80, startHeightsRef.current.resources - delta)
-        setSectionHeight('tools', newToolsHeight)
-        setSectionHeight('resources', newResourcesHeight)
-      } else if (resizingSection === 'resources-prompts') {
-        const newResourcesHeight = Math.max(80, startHeightsRef.current.resources + delta)
-        const newPromptsHeight = Math.max(80, startHeightsRef.current.prompts - delta)
-        setSectionHeight('resources', newResourcesHeight)
-        setSectionHeight('prompts', newPromptsHeight)
-      }
-    }
-
-    const handleMouseUp = () => {
-      setResizingSection(null)
-    }
-
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
-    }
-  }, [resizingSection, setSectionHeight])
-
-  const handleResizeStart = (section: 'tools-resources' | 'resources-prompts', e: React.MouseEvent) => {
-    startYRef.current = e.clientY
-    startHeightsRef.current = { ...sectionHeights }
-    setResizingSection(section)
-  }
-
   return (
-    <>
-      <aside style={{ width: `${sidebarWidth}px` }} className="flex-shrink-0 border-r border-[var(--c-border)] flex flex-col overflow-x-hidden overflow-y-auto bg-[var(--c-bg-base)] relative">
+    <aside style={{ width: `${sidebarWidth}px` }} className="flex-shrink-0 border-r border-[var(--c-border)] flex flex-col overflow-x-hidden overflow-y-auto bg-[var(--c-bg-base)] relative">
       <Section
         title="Tools"
         count={filteredTools.length}
         countColor="text-[var(--c-purple)] bg-[var(--c-purple-bg)]"
-        height={sectionHeights.tools}
         onSearch={setSearchTools}
         searchValue={searchTools}
       >
@@ -110,20 +67,10 @@ export function Sidebar() {
         ))}
       </Section>
 
-      {/* Resize Handle 1 */}
-      <div
-        onMouseDown={(e) => handleResizeStart('tools-resources', e)}
-        className={`h-1 cursor-row-resize hover:bg-[var(--c-purple)] transition-colors ${
-          resizingSection === 'tools-resources' ? 'bg-[var(--c-purple)]' : 'bg-transparent'
-        }`}
-        style={{ userSelect: 'none' }}
-      />
-
       <Section
         title="Resources"
         count={filteredResources.length}
         countColor="text-[var(--c-blue)] bg-[var(--c-blue-bg)]"
-        height={sectionHeights.resources}
         onSearch={setSearchResources}
         searchValue={searchResources}
       >
@@ -140,20 +87,10 @@ export function Sidebar() {
         ))}
       </Section>
 
-      {/* Resize Handle 2 */}
-      <div
-        onMouseDown={(e) => handleResizeStart('resources-prompts', e)}
-        className={`h-1 cursor-row-resize hover:bg-[var(--c-purple)] transition-colors ${
-          resizingSection === 'resources-prompts' ? 'bg-[var(--c-purple)]' : 'bg-transparent'
-        }`}
-        style={{ userSelect: 'none' }}
-      />
-
       <Section
         title="Prompts"
         count={filteredPrompts.length}
         countColor="text-[var(--c-amber)] bg-[var(--c-amber-bg)]"
-        height={sectionHeights.prompts}
         onSearch={setSearchPrompts}
         searchValue={searchPrompts}
       >
@@ -180,15 +117,13 @@ export function Sidebar() {
         style={{ userSelect: 'none' }}
       />
     </aside>
-    </>
   )
 }
 
-function Section({ title, count, countColor, height, onSearch, searchValue, children }: {
+function Section({ title, count, countColor, onSearch, searchValue, children }: {
   title: string
   count: number
   countColor: string
-  height: number
   onSearch?: (value: string) => void
   searchValue?: string
   children: React.ReactNode
@@ -211,9 +146,8 @@ function Section({ title, count, countColor, height, onSearch, searchValue, chil
           />
         </div>
       )}
-      <div style={{ height: `${height}px` }} className="overflow-y-auto flex-shrink-0">
+      <div className="flex-shrink-0 pb-2">
         {children}
-        <div className="h-8 flex-shrink-0" />
       </div>
     </div>
   )

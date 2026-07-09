@@ -41,7 +41,6 @@ interface AppStore {
 
   // ── UI state ───────────────────────────────────────────────
   sidebarWidth: number
-  sectionHeights: { tools: number; resources: number; prompts: number }
 
   // ── Tab Actions ────────────────────────────────────────────
   createTab: (name?: string) => void
@@ -77,7 +76,6 @@ interface AppStore {
 
   // ── UI Actions ─────────────────────────────────────────────
   setSidebarWidth: (w: number) => void
-  setSectionHeight: (section: 'tools' | 'resources' | 'prompts', height: number) => void
 
   // ── Auth ───────────────────────────────────────────────────
   user: RegisteredUser | null
@@ -114,7 +112,6 @@ export const useStore = create<AppStore>((set, get) => ({
   messages: [],
   claudeApiKey: '',
   sidebarWidth: 256,
-  sectionHeights: { tools: 280, resources: 280, prompts: 280 },
   user: null,
   userReady: false,
 
@@ -254,10 +251,6 @@ export const useStore = create<AppStore>((set, get) => ({
 
   // ── UI Actions ─────────────────────────────────────────────
   setSidebarWidth: (w) => set({ sidebarWidth: Math.max(180, Math.min(w, 600)) }),
-
-  setSectionHeight: (section, height) => set((s) => ({
-    sectionHeights: { ...s.sectionHeights, [section]: Math.max(80, height) }
-  })),
 
   // ── Auth ───────────────────────────────────────────────────
   initUser: () => {
