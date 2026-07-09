@@ -198,6 +198,18 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--c-bg-base)]">
 
+      {/* ── Bug bounty banner ── */}
+      <Link href="/bugs"
+        className="group flex items-center justify-center gap-2 px-4 py-2 text-[13px] font-medium text-center
+                   bg-[var(--c-amber-bg)] text-[var(--c-amber)] border-b border-[var(--c-amber-border)]
+                   hover:bg-[var(--c-amber-bg-2)] transition-colors">
+        <span className="text-[14px]">🐛</span>
+        <span>
+          <strong className="font-semibold">Bug bounty:</strong> find a bug we accept and get <strong className="font-semibold">$50</strong>
+        </span>
+        <span className="underline-offset-2 group-hover:underline">Report a bug →</span>
+      </Link>
+
       {/* ── Navbar ── */}
       <header className="sticky top-0 z-40 border-b border-[var(--c-border)] bg-[var(--c-bg-base)]/90 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
