@@ -14,6 +14,8 @@ const LEGAL_LINKS = [
   { href: '/terms',   label: 'Terms' },
 ]
 
+const CONTACT_EMAIL = 'customer@bubblemcp.com'
+
 export function Footer({ compact = false }: { compact?: boolean }) {
   if (compact) {
     return (
@@ -79,6 +81,17 @@ export function Footer({ compact = false }: { compact?: boolean }) {
                 </Link>
               ))}
             </div>
+          </div>
+
+          {/* Contact */}
+          <div className="flex flex-col gap-2">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--c-text-3)] mb-1">Contact</p>
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="text-[13px] text-[var(--c-text-2)] hover:text-[var(--c-text)] transition-colors"
+            >
+              {CONTACT_EMAIL}
+            </a>
           </div>
 
         </div>
