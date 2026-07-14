@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import db from '@/lib/db'
+import { sendEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
   try {
@@ -35,6 +36,12 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error) throw error
+
+    sendEmail(
+      normalizedEmail,
+      'Welcome to Bubble MCP',
+      `<p>Hi${data.name ? ` ${data.name}` : ''},</p><p>Your Bubble MCP account is ready. Sign in any time to inspect, test, and monitor your MCP servers.</p><p>If you didn't create this account, please contact us at support@bubblemcp.com.</p>`,
+    ).catch(err => console.error('[auth/signup] welcome email failed:', err))
 
     return NextResponse.json({ success: true, user: { email: data.email, name: data.name ?? undefined, plan: 'free' } })
   } catch (err: unknown) {

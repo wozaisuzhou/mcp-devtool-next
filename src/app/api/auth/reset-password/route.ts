@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
 import db from '@/lib/db'
+import { sendEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,6 +32,12 @@ export async function POST(req: NextRequest) {
       db.from('registered_users').update({ password_hash: passwordHash }).eq('email', record.email),
       db.from('password_reset_tokens').update({ used_at: new Date().toISOString() }).eq('token_hash', tokenHash),
     ])
+
+    sendEmail(
+      record.email,
+      'Your Bubble MCP password was changed',
+      `<p>This is a confirmation that your Bubble MCP password was just reset.</p><p>If you did not make this change, please contact us immediately at support@bubblemcp.com.</p>`,
+    ).catch(err => console.error('[auth/reset-password] notification email failed:', err))
 
     return NextResponse.json({ success: true })
   } catch (err) {

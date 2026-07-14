@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import db from '@/lib/db'
+import { sendEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,6 +29,12 @@ export async function POST(req: NextRequest) {
 
     const newHash = await bcrypt.hash(newPassword, 12)
     await db.from('registered_users').update({ password_hash: newHash }).eq('email', normalizedEmail)
+
+    sendEmail(
+      normalizedEmail,
+      'Your Bubble MCP password was changed',
+      `<p>This is a confirmation that your Bubble MCP password was just changed.</p><p>If you did not make this change, please contact us immediately at support@bubblemcp.com.</p>`,
+    ).catch(err => console.error('[auth/change-password] notification email failed:', err))
 
     return NextResponse.json({ success: true })
   } catch (err) {
