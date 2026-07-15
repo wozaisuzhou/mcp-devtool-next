@@ -76,7 +76,7 @@ export default function TermsOfServicePage() {
         <h2>Contact</h2>
         <p>
           Questions about these terms? Reach us at{' '}
-          <a href="mailto:support@bubblemcp.com">support@bubblemcp.com</a>.
+          <a href="mailto:customer@bubblemcp.com">customer@bubblemcp.com</a>.
         </p>
       </section>
     </LegalPage>

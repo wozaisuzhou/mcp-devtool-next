@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     sendEmail(
       record.email,
       'Your Bubble MCP password was changed',
-      `<p>This is a confirmation that your Bubble MCP password was just reset.</p><p>If you did not make this change, please contact us immediately at support@bubblemcp.com.</p>`,
+      `<p>This is a confirmation that your Bubble MCP password was just reset.</p><p>If you did not make this change, please contact us immediately at customer@bubblemcp.com.</p>`,
     ).catch(err => console.error('[auth/reset-password] notification email failed:', err))
 
     return NextResponse.json({ success: true })
