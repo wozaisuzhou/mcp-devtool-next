@@ -2,9 +2,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js'
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
 import { getMcpClient, setMcpClient } from '../client'
+import { assertPublicMcpUrl } from '../ssrf-guard'
 
 function buildAuthorizationHeader(url: string, authToken: string) {
   const trimmed = authToken.trim()
@@ -26,6 +26,12 @@ export async function POST(req: NextRequest) {
     authToken?: string
   }
 
+  if (transport === 'stdio') {
+    // stdio connections spawn a local process and are only ever initiated from the
+    // Electron desktop app, over IPC (see electron/mcp-stdio.ts) — never over HTTP.
+    return NextResponse.json({ error: 'stdio transport is not supported over this endpoint' }, { status: 400 })
+  }
+
   const normalizedAuthToken = authToken?.trim()
 
   // Clean up any existing connection
@@ -36,6 +42,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    await assertPublicMcpUrl(url)
+
     console.log(`[MCP Connect] Attempting to connect to: ${url} via ${transport}`)
     console.log(`[MCP Connect] Auth token provided: ${!!authToken}`)
 
@@ -47,71 +55,63 @@ export async function POST(req: NextRequest) {
     let mcpTransport
     let clientAlreadyConnected = false
 
-    if (transport === 'stdio') {
-      // For stdio: url is the command e.g. "npx -y @modelcontextprotocol/server-everything"
-      const [command, ...args] = url.split(' ')
-      console.log(`[MCP Connect] Creating stdio transport with command: ${command}`)
-      mcpTransport = new StdioClientTransport({ command: command!, args })
-    } else {
-      // HTTP/SSE or auto-detect
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'Accept': 'text/event-stream',
-      }
-      
-      if (normalizedAuthToken) {
-        const authHeader = buildAuthorizationHeader(url, normalizedAuthToken)
-        if (authHeader) {
-          headers['Authorization'] = authHeader
-          if (url.includes('githubcopilot.com')) {
-            console.log(`[MCP Connect] Using GitHub Copilot auth header: ${authHeader.split(' ')[0]}`)
-          } else {
-            console.log(`[MCP Connect] Using standard Bearer token authentication`)
-          }
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Accept': 'text/event-stream',
+    }
+
+    if (normalizedAuthToken) {
+      const authHeader = buildAuthorizationHeader(url, normalizedAuthToken)
+      if (authHeader) {
+        headers['Authorization'] = authHeader
+        if (url.includes('githubcopilot.com')) {
+          console.log(`[MCP Connect] Using GitHub Copilot auth header: ${authHeader.split(' ')[0]}`)
+        } else {
+          console.log(`[MCP Connect] Using standard Bearer token authentication`)
         }
       }
+    }
 
-      console.log(`[MCP Connect] Request headers:`, Object.keys(headers))
+    console.log(`[MCP Connect] Request headers:`, Object.keys(headers))
 
-      if (transport === 'auto') {
-        // Try StreamableHTTP first, fall back to SSE
-        console.log(`[MCP Connect] Trying StreamableHTTP transport first...`)
+    if (transport === 'auto') {
+      // Try StreamableHTTP first, fall back to SSE
+      console.log(`[MCP Connect] Trying StreamableHTTP transport first...`)
+      try {
+        const streamableTransport = new StreamableHTTPClientTransport(new URL(url), {
+          requestInit: { headers }
+        })
+        await client.connect(streamableTransport)
+        mcpTransport = streamableTransport
+        clientAlreadyConnected = true
+        console.log(`[MCP Connect] Successfully connected with StreamableHTTP transport`)
+      } catch (streamableError) {
+        console.log(`[MCP Connect] StreamableHTTP failed: ${streamableError instanceof Error ? streamableError.message : 'Unknown error'}`)
+        console.log(`[MCP Connect] Falling back to SSE transport...`)
+
         try {
-          const streamableTransport = new StreamableHTTPClientTransport(new URL(url), {
+          const sseTransport = new SSEClientTransport(new URL(url), {
             requestInit: { headers }
           })
-          await client.connect(streamableTransport)
-          mcpTransport = streamableTransport
+          await client.connect(sseTransport)
+          mcpTransport = sseTransport
           clientAlreadyConnected = true
-          console.log(`[MCP Connect] Successfully connected with StreamableHTTP transport`)
-        } catch (streamableError) {
-          console.log(`[MCP Connect] StreamableHTTP failed: ${streamableError instanceof Error ? streamableError.message : 'Unknown error'}`)
-          console.log(`[MCP Connect] Falling back to SSE transport...`)
-          
-          try {
-            const sseTransport = new SSEClientTransport(new URL(url), {
-              requestInit: { headers }
-            })
-            await client.connect(sseTransport)
-            mcpTransport = sseTransport
-            clientAlreadyConnected = true
-            console.log(`[MCP Connect] Successfully connected with SSE transport`)
-          } catch (sseError) {
-            console.error(`[MCP Connect] Both transport methods failed`)
-            throw sseError
-          }
+          console.log(`[MCP Connect] Successfully connected with SSE transport`)
+        } catch (sseError) {
+          console.error(`[MCP Connect] Both transport methods failed`)
+          throw sseError
         }
-      } else {
-        // Use specified transport (http-sse)
-        console.log(`[MCP Connect] Creating SSE transport to: ${url}`)
-        try {
-          mcpTransport = new SSEClientTransport(new URL(url), {
-            requestInit: { headers }
-          })
-        } catch (urlError) {
-          console.error(`[MCP Connect] Invalid URL: ${url}`, urlError)
-          throw new Error(`Invalid URL format: ${urlError instanceof Error ? urlError.message : 'Unknown error'}`)
-        }
+      }
+    } else {
+      // Use specified transport (http-sse)
+      console.log(`[MCP Connect] Creating SSE transport to: ${url}`)
+      try {
+        mcpTransport = new SSEClientTransport(new URL(url), {
+          requestInit: { headers }
+        })
+      } catch (urlError) {
+        console.error(`[MCP Connect] Invalid URL: ${url}`, urlError)
+        throw new Error(`Invalid URL format: ${urlError instanceof Error ? urlError.message : 'Unknown error'}`)
       }
     }
 
