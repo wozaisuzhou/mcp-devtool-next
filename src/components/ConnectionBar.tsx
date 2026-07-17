@@ -184,7 +184,7 @@ export function ConnectionBar() {
           >
             <option value="auto">Auto-detect</option>
             <option value="http-sse">HTTP / SSE</option>
-            <option value="stdio">stdio</option>
+            {isElectron && <option value="stdio">stdio</option>}
           </select>
 
           <input
