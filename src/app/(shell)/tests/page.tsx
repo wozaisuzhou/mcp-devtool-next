@@ -260,6 +260,7 @@ export default function TestsPage() {
   const persist = useCallback((updated: TestSuite[], changedSuite?: TestSuite) => {
     setSuites(updated)
     if (!user) { saveLocal(updated); return }
+    const userEmail = user.email
 
     if (saveTimer.current) clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(async () => {
@@ -270,6 +271,7 @@ export default function TestsPage() {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            userEmail,
             name: changedSuite.name,
             description: changedSuite.description,
             cases: changedSuite.cases,
@@ -308,7 +310,7 @@ export default function TestsPage() {
 
   async function deleteSuite(id: string) {
     if (user) {
-      await fetch(`/api/tests/suites/${id}`, { method: 'DELETE' })
+      await fetch(`/api/tests/suites/${id}?userEmail=${encodeURIComponent(user.email)}`, { method: 'DELETE' })
     }
     setSuites(prev => {
       const next = prev.filter(s => s.id !== id)

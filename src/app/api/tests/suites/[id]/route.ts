@@ -4,18 +4,25 @@ import { getUserPlanRow, resolveLimits } from '@/lib/limits'
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { name, description, cases } = await req.json()
+    const { name, description, cases, userEmail } = await req.json()
+    if (!userEmail?.trim()) return NextResponse.json({ error: 'userEmail is required' }, { status: 400 })
+
+    const { data: owner } = await db
+      .from('test_suites')
+      .select('user_email')
+      .eq('id', params.id)
+      .maybeSingle()
+
+    if (!owner) return NextResponse.json({ error: 'Suite not found' }, { status: 404 })
+    if (owner.user_email?.toLowerCase() !== userEmail.trim().toLowerCase()) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const update: Record<string, unknown> = {}
     if (name !== undefined)        update.name        = name.trim()
     if (description !== undefined) update.description = description?.trim() || null
     if (cases !== undefined) {
-      const { data: owner } = await db
-        .from('test_suites')
-        .select('user_email')
-        .eq('id', params.id)
-        .maybeSingle()
-      if (owner?.user_email) {
+      if (owner.user_email) {
         const { plan, enterpriseLimits } = await getUserPlanRow(owner.user_email as string)
         const caseLimit = resolveLimits(plan, enterpriseLimits).casesPerSuite
         if ((cases as unknown[]).length > caseLimit) {
@@ -78,8 +85,22 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const userEmail = req.nextUrl.searchParams.get('userEmail')?.trim()
+    if (!userEmail) return NextResponse.json({ error: 'userEmail is required' }, { status: 400 })
+
+    const { data: suite } = await db
+      .from('test_suites')
+      .select('user_email')
+      .eq('id', params.id)
+      .maybeSingle()
+
+    if (!suite) return NextResponse.json({ error: 'Suite not found' }, { status: 404 })
+    if (suite.user_email?.toLowerCase() !== userEmail.toLowerCase()) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const { error } = await db
       .from('test_suites')
       .delete()

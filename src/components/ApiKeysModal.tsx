@@ -37,7 +37,9 @@ export function ApiKeysModal({ userEmail, onClose }: Props) {
   const [keys, setKeys] = useState<ApiKey[]>([])
   const [loading, setLoading] = useState(true)
   const [newName, setNewName] = useState('')
+  const [password, setPassword] = useState('')
   const [creating, setCreating] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
   const [newKey, setNewKey] = useState<string | null>(null)
   const [revoking, setRevoking] = useState<string | null>(null)
   const [selectedSuiteId, setSelectedSuiteId] = useState('')
@@ -60,19 +62,23 @@ export function ApiKeysModal({ userEmail, onClose }: Props) {
   }, [userEmail])
 
   async function handleCreate() {
-    if (!newName.trim()) return
+    if (!newName.trim() || !password) return
     setCreating(true)
+    setCreateError(null)
     try {
       const res = await fetch('/api/v1/keys', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userEmail, name: newName.trim() }),
+        body: JSON.stringify({ userEmail, name: newName.trim(), password }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       setNewKey(data.key)
       setKeys(prev => [{ id: data.meta.id, name: data.meta.name, created_at: data.meta.created_at, last_used_at: null }, ...prev])
       setNewName('')
+      setPassword('')
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : 'Failed to create key')
     } finally {
       setCreating(false)
     }
@@ -134,21 +140,33 @@ jobs:
           {/* Create key */}
           <div>
             <p className="text-[13px] font-medium text-[var(--c-text-2)] mb-2">Create new key</p>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newName}
-                onChange={e => setNewName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleCreate()}
-                placeholder="e.g. GitHub Actions"
-                className="flex-1 bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-lg px-3 py-1.5 text-[14px]
-                           text-[var(--c-text)] placeholder-[var(--c-text-3)] outline-none focus:border-[var(--c-purple-2)] transition-colors"
-              />
-              <button onClick={handleCreate} disabled={!newName.trim() || creating}
-                className="px-3 py-1.5 rounded-lg text-[13px] font-semibold bg-[var(--c-purple-2)] text-white
-                           hover:bg-[var(--c-purple)] disabled:opacity-40 transition-colors">
-                {creating ? 'Creating…' : 'Create'}
-              </button>
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={e => setNewName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleCreate()}
+                  placeholder="e.g. GitHub Actions"
+                  className="flex-1 bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-lg px-3 py-1.5 text-[14px]
+                             text-[var(--c-text)] placeholder-[var(--c-text-3)] outline-none focus:border-[var(--c-purple-2)] transition-colors"
+                />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleCreate()}
+                  placeholder="Confirm password"
+                  className="flex-1 bg-[var(--c-bg-2)] border border-[var(--c-border)] rounded-lg px-3 py-1.5 text-[14px]
+                             text-[var(--c-text)] placeholder-[var(--c-text-3)] outline-none focus:border-[var(--c-purple-2)] transition-colors"
+                />
+                <button onClick={handleCreate} disabled={!newName.trim() || !password || creating}
+                  className="px-3 py-1.5 rounded-lg text-[13px] font-semibold bg-[var(--c-purple-2)] text-white
+                             hover:bg-[var(--c-purple)] disabled:opacity-40 transition-colors">
+                  {creating ? 'Creating…' : 'Create'}
+                </button>
+              </div>
+              {createError && <p className="text-[12px] text-[var(--c-red)]">{createError}</p>}
             </div>
           </div>
 

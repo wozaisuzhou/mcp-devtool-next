@@ -57,7 +57,7 @@ export default function DirectoryPage() {
     if (!user) return
     setLoadingId(entry.id)
     try {
-      const res = await fetch(`/api/sessions/${entry.id}`)
+      const res = await fetch(`/api/sessions/${entry.id}?userEmail=${encodeURIComponent(user.email)}`)
       if (!res.ok) return
       const { session } = await res.json()
       loadSession({

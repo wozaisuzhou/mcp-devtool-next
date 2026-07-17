@@ -17,7 +17,13 @@ export async function GET(req: NextRequest) {
     .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
 
   if (q) {
-    query = query.or(`name.ilike.%${q}%,server_name.ilike.%${q}%,public_description.ilike.%${q}%`)
+    // Strip characters that are syntactically meaningful in PostgREST's `or=` filter
+    // grammar (`,` separates conditions, `()` group them) so a crafted query string
+    // can't inject additional filter conditions.
+    const safeQ = q.replace(/[,()]/g, ' ').trim()
+    if (safeQ) {
+      query = query.or(`name.ilike.%${safeQ}%,server_name.ilike.%${safeQ}%,public_description.ilike.%${safeQ}%`)
+    }
   }
   if (transport) {
     query = query.eq('transport', transport)

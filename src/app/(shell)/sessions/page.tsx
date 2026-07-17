@@ -144,7 +144,8 @@ export default function SessionsPage() {
   }
 
   async function loadFull(id: string): Promise<FullSession | null> {
-    const res = await fetch(`/api/sessions/${id}`)
+    const qs = user ? `?userEmail=${encodeURIComponent(user.email)}` : ''
+    const res = await fetch(`/api/sessions/${id}${qs}`)
     if (!res.ok) return null
     const data = await res.json()
     return data.session as FullSession
@@ -160,9 +161,10 @@ export default function SessionsPage() {
   }
 
   async function deleteSession(id: string) {
+    if (!user) return
     setDeletingId(id)
     try {
-      await fetch(`/api/sessions/${id}`, { method: 'DELETE' })
+      await fetch(`/api/sessions/${id}?userEmail=${encodeURIComponent(user.email)}`, { method: 'DELETE' })
       setSessions((prev) => prev.filter((s) => s.id !== id))
       if (compareA === id) setCompareA('')
       if (compareB === id) setCompareB('')

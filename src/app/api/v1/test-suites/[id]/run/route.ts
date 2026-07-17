@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createHash } from 'crypto'
 import db from '@/lib/db'
 import { runSuite } from '@/lib/ci-runner'
+import { assertPublicMcpUrl } from '@/lib/ssrf-guard'
 
 async function resolveApiKey(authHeader: string | null): Promise<string | null> {
   if (!authHeader?.startsWith('Bearer ')) return null
@@ -46,6 +47,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (suite.user_email !== userEmail) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   try {
+    await assertPublicMcpUrl(serverUrl.trim())
     const result = await runSuite(suite.cases ?? [], serverUrl.trim(), transport, authToken)
     return NextResponse.json({ suiteId: suite.id, suiteName: suite.name, ...result })
   } catch (err) {
