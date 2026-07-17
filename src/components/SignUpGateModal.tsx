@@ -5,11 +5,18 @@ import type { RegisteredUser } from '@/hooks/useRegisteredUser'
 interface Props {
   onSignedUp: (user: RegisteredUser) => void
   onClose: () => void
+  title?: string
+  description?: string
 }
 
 type Step = 'form' | 'submitting' | 'error'
 
-export function SignUpGateModal({ onSignedUp, onClose }: Props) {
+export function SignUpGateModal({
+  onSignedUp,
+  onClose,
+  title = 'Create your free account',
+  description = 'Save sessions, build test suites, and more.',
+}: Props) {
   const [step, setStep]         = useState<Step>('form')
   const [email, setEmail]       = useState('')
   const [name, setName]         = useState('')
@@ -48,9 +55,9 @@ export function SignUpGateModal({ onSignedUp, onClose }: Props) {
 
         <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-[var(--c-border)]">
           <div>
-            <h2 className="text-[17px] font-semibold text-[var(--c-text)]">Sign up to save sessions</h2>
+            <h2 className="text-[17px] font-semibold text-[var(--c-text)]">{title}</h2>
             <p className="text-[14px] text-[var(--c-text-2)] mt-0.5">
-              A free account lets you save and revisit snapshots.
+              {description}
             </p>
           </div>
           <button onClick={onClose} className="text-[var(--c-text-3)] hover:text-[var(--c-text)] transition-colors mt-0.5">

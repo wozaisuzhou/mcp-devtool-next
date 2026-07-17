@@ -860,7 +860,13 @@ jobs:
         <SignInModal onSignedIn={handleSignedIn} onClose={() => setModal('none')} />
       )}
       {modal === 'signup' && (
-        <SignUpGateModal onSignedUp={handleSignedIn} onClose={() => setModal('none')} />
+        <SignUpGateModal
+          onSignedUp={handleSignedIn}
+          onClose={() => setModal('none')}
+          {...(pendingDownload
+            ? { title: 'Sign up to download', description: 'A free account lets you download the desktop app.' }
+            : {})}
+        />
       )}
     </div>
   )
